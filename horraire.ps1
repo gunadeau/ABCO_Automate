@@ -202,9 +202,9 @@ if ($matchesToday) {
         $tableContent += "⏰ $startTime  $homeTeam  vs  $awayTeam  🏟️ $venue`n"
     }
 
-    # Ajouter les remerciements aux commanditaires
-    $message = $introMessage + $tableHeader + $tableContent + "`nMerci à nos commanditaires !"
-    Write-Output "Message à publier : $message"
+    # Ajouter le message automatisé et les remerciements aux commanditaires
+    $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horraire sur: https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings ***"
+    $message = $introMessage + $tableHeader + $tableContent + "`n$automatedMessage`nMerci à nos commanditaires !"
 
     # Récupérer les logos des commanditaires
     Write-Output "Recherche des fichiers dans : $commanditaireFolder"
