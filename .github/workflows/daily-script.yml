@@ -1,0 +1,19 @@
+name: Exécuter Script PowerShell Quotidien
+
+on:
+  schedule:
+    - cron: '30 11 * * *' # 7h30 Québec (EDT/EST) = 11h30 UTC
+
+jobs:
+  run-powershell:
+    runs-on: windows-latest
+steps:
+  - uses: actions/checkout@v4
+  - name: Installer les dépendances PowerShell
+    run: |
+      Install-Module -Name ImportExcel -Force -Scope CurrentUser
+    shell: powershell
+  - name: Exécuter le script PowerShell
+    run: |
+      ./horraire.ps1
+    shell: powershell
