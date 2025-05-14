@@ -2,9 +2,9 @@ name: Exécuter Script PowerShell Quotidien
 
 on:
   schedule:
-    - cron: '00 13 * * *' # 7h30 Québec en EDT
+    - cron: '15 13 * * *' # 7h30 Québec en EDT
     - cron: '30 11 * * *' # 7h30 Québec en EDT (11h30 UTC)
-  workflow_dispatch: # Ajoute l'exécution manuelle
+  # workflow_dispatch: # Ajoute l'exécution manuelle
 
 jobs:
   run-powershell:
