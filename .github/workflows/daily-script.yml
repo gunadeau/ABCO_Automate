@@ -2,18 +2,32 @@ name: Exécuter Script PowerShell Quotidien
 
 on:
   schedule:
-    - cron: '30 11 * * *' # 7h30 Québec (EDT/EST) = 11h30 UTC
+    - cron: '30 11 * * *' # 7h30 Québec en EDT (11h30 UTC)
+    - cron: '30 12 * * *' # 7h30 Québec en EST (12h30 UTC)
 
 jobs:
   run-powershell:
     runs-on: windows-latest
-steps:
-  - uses: actions/checkout@v4
-  - name: Installer les dépendances PowerShell
-    run: |
-      Install-Module -Name ImportExcel -Force -Scope CurrentUser
-    shell: powershell
-  - name: Exécuter le script PowerShell
-    run: |
-      ./horraire.ps1
-    shell: powershell
+    steps:
+      - uses: actions/checkout@v4
+      - name: Vérifier si c'est EDT ou EST
+        id: check-timezone
+        run: |
+          $date = Get-Date
+          $isDST = $date.IsDaylightSavingTime()
+          if ($isDST) {
+            echo "TIMEZONE=EDT" >> $env:GITHUB_ENV
+          } else {
+            echo "TIMEZONE=EST" >> $env:GITHUB_ENV
+          }
+        shell: powershell
+      - name: Installer les dépendances PowerShell
+        if: env.TIMEZONE == (github.event.schedule == '30 11 * * *' && 'EDT' || 'EST')
+        run: |
+          Install-Module -Name ImportExcel -Force -Scope CurrentUser -ErrorAction Stop
+        shell: powershell
+      - name: Exécuter le script PowerShell
+        if: env.TIMEZONE == (github.event.schedule == '30 11 * * *' && 'EDT' || 'EST')
+        run: |
+          ./scripts/horraire.ps1
+        shell: powershell
