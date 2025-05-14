@@ -1,13 +1,13 @@
-﻿# Paramètres
-$excelFilePath = "C:\Users\gunadeau\Downloads\abco\horraire_test.xlsx"
+﻿
+# Paramètres
+$scriptDir = $PSScriptRoot  # Répertoire où le script est exécuté
+$excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.xlsx"))
+$commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
+$tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
 $pageId = "677527292106749"
-$accessToken = "EAAZARN3wZBMUQBO3TR9M9XSAZAZBVPapZCy4ZAl6yllfnIZB9kO3DXhSZBCMpJlPpWTyrSCiWGLQwrkvqZCMphEHZBnQSjWNPzhKbtpu3cz0jeUL7fTfJLiswFcjl052r1Vno7nKeZBP49tBTOYgPjhOqTXAqMes0VfcoTEj7a7vx6mhAPvCOD
-h6xTKEj4YmjpdU1KcdxxN9ZBETZChPNjvzc"
-$commanditaireFolder = "C:\Users\gunadeau\Downloads\abco\commanditaire"
+$accessToken = "EAAZARN3wZBMUQBO3TR9M9XSAZAZBVPapZCy4ZAl6yllfnIZB9kO3DXhSZBCMpJlPpWTyrSCiWGLQwrkvqZCMphEHZBnQSjWNPzhKbtpu3cz0jeUL7fTfJLiswFcjl052r1Vno7nKeZBP49tBTOYgPjhOqTXAqMes0VfcoTEj7a7vx6mhAPvCODh6xTKEj4YmjpdU1KcdxxN9ZBETZChPNjvzc"
 $photoApiUrl = "https://graph.facebook.com/v20.0/$pageId/photos"
 $feedApiUrl = "https://graph.facebook.com/v20.0/$pageId/feed"
-$tempFolder = "C:\Users\gunadeau\Downloads\abco\temp"  # Dossier temporaire pour les images redimensionnées
-
 
 
 # Créer un dossier temporaire pour les images redimensionnées s'il n'existe pas
