@@ -141,7 +141,7 @@ $matchesToday = $matches | Where-Object {
 
 if ($matchesToday) {
     # Construire le tableau des matchs avec un format visuel
-    $introMessage = "**Venez encourager nos Titans ! Voici les matchs de la journée**`n`n"
+    $introMessage = "Venez encourager nos Titans ! Voici les matchs de la journée`n`n"
     $tableHeader = "⚾ Matchs de la journée ($currentDate) ⚾`n`n"
     $tableContent = ""
 
@@ -204,7 +204,7 @@ if ($matchesToday) {
 
     # Ajouter le message automatisé et les remerciements aux commanditaires
     $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horraire sur: https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings ***"
-    $message = $introMessage + $tableHeader + $tableContent + "`n$automatedMessage`n`n**Merci à nos commanditaires !**"
+    $message = $introMessage + $tableHeader + $tableContent + "`n$automatedMessage`n`nMerci à nos commanditaires !"
 
     # Récupérer les logos des commanditaires
     Write-Output "Recherche des fichiers dans : $commanditaireFolder"
