@@ -1,4 +1,4 @@
-name: Exécuter Script PowerShell Quotidien
+name: Exécuter Script PowerShell Quotidien 
 
 on:
   schedule:
