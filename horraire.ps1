@@ -5,7 +5,7 @@ $excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.x
 $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
 $tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
 $pageId = "677527292106749"
-$accessToken = "EAAZARN3wZBMUQBO3TR9M9XSAZAZBVPapZCy4ZAl6yllfnIZB9kO3DXhSZBCMpJlPpWTyrSCiWGLQwrkvqZCMphEHZBnQSjWNPzhKbtpu3cz0jeUL7fTfJLiswFcjl052r1Vno7nKeZBP49tBTOYgPjhOqTXAqMes0VfcoTEj7a7vx6mhAPvCODh6xTKEj4YmjpdU1KcdxxN9ZBETZChPNjvzc"
+$accessToken = $env:FACEBOOK_ACCESS_TOKEN
 $photoApiUrl = "https://graph.facebook.com/v20.0/$pageId/photos"
 $feedApiUrl = "https://graph.facebook.com/v20.0/$pageId/feed"
 
