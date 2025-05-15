@@ -14,6 +14,8 @@ jobs:
           Install-Module -Name ImportExcel -Force -Scope CurrentUser -ErrorAction Stop
         shell: powershell
       - name: Exécuter le script PowerShell
+        env:
+          FACEBOOK_ACCESS_TOKEN: ${{ secrets.FACEBOOK_ACCESS_TOKEN }}
         run: |
           ./horraire.ps1
         shell: powershell
