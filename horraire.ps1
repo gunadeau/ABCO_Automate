@@ -1,4 +1,4 @@
-﻿
+
 # Paramètres
 $scriptDir = $PSScriptRoot  # Répertoire où le script est exécuté
 $excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.xlsx"))
@@ -9,6 +9,8 @@ $accessToken = $env:FACEBOOK_ACCESS_TOKEN
 $photoApiUrl = "https://graph.facebook.com/v20.0/$pageId/photos"
 $feedApiUrl = "https://graph.facebook.com/v20.0/$pageId/feed"
 
+# Définir la culture pour le parsing (ajustez selon votre région, ex. 'en-US' pour AM/PM)
+[System.Globalization.CultureInfo]$culture = 'fr-CA'
 
 # Créer un dossier temporaire pour les images redimensionnées s'il n'existe pas
 if (-not (Test-Path $tempFolder)) {
@@ -117,25 +119,59 @@ function Resize-Image {
 Import-Module ImportExcel
 
 # Obtenir la date du jour
-$currentDate = (Get-Date).ToString("yyyy-MM-dd")  # Format: 2025-05-14
+$currentDate = (Get-Date).ToString("yyyy-MM-dd")  # Format: 2025-05-16
 
 # Lire le fichier Excel
 $matches = Import-Excel -Path $excelFilePath
 Write-Output "Propriétés des matchs importés :"
 $matches[0] | Get-Member -MemberType NoteProperty | ForEach-Object { Write-Output $_.Name }
 
+# Log des valeurs brutes de Start Time pour diagnostic
+Write-Output "Valeurs brutes de 'Start Time' dans le fichier Excel :"
+$matches | ForEach-Object { 
+    $startTime = $_.'Start Time'
+    Write-Output "Start Time : '$startTime' (Type : $($startTime.GetType().FullName))"
+}
+
 # Filtrer les matchs du jour et trier par heure
 $matchesToday = $matches | Where-Object { 
     try { 
-        [DateTime]::Parse($_.Date).ToString("yyyy-MM-dd") -eq $currentDate 
+        # Filtrer par date
+        if ($_.Date) {
+            [DateTime]::Parse($_.Date, $culture).ToString("yyyy-MM-dd") -eq $currentDate 
+        } else {
+            $false
+        }
     } catch { 
+        Write-Warning "Erreur de parsing pour Date '$($_.Date)' : $_"
         $false 
     }
 } | Sort-Object { 
     try { 
-        [DateTime]::Parse($_.("Start Time")).ToString("HH:mm") 
+        $startTime = $_.'Start Time'
+        if ($startTime) {
+            # Si Start Time est un DateTime, extraire l'heure directement
+            if ($startTime -is [DateTime]) {
+                $startTime.ToString("HH:mm")
+            }
+            # Si Start Time est une chaîne, tenter de la parser
+            elseif ($startTime -is [string] -and $startTime -ne '' -and $startTime -notmatch '^\s*$') {
+                [DateTime]::Parse($startTime, $culture).ToString("HH:mm")
+            }
+            # Si Start Time est une valeur numérique (fraction de jour)
+            elseif ($startTime -is [double]) {
+                $excelEpoch = [DateTime]::Parse("1899-12-30")
+                $excelEpoch.AddDays($startTime).ToString("HH:mm")
+            }
+            else {
+                "00:00"  # Valeur par défaut pour les cas invalides
+            }
+        } else {
+            "00:00"  # Valeur par défaut si Start Time est vide
+        }
     } catch { 
-        "00:00" 
+        Write-Warning "Erreur de parsing pour Start Time '$startTime' : $_"
+        "00:00"  # Valeur par défaut en cas d'erreur
     }
 }
 
@@ -146,7 +182,33 @@ if ($matchesToday) {
     $tableContent = ""
 
     foreach ($match in $matchesToday) {
-        $startTime = [DateTime]::Parse($match."Start Time").ToString("HH:mm")  # Afficher uniquement l'heure (ex. 09:00)
+        $startTime = try { 
+            $startTimeValue = $match.'Start Time'
+            if ($startTimeValue) {
+                # Si Start Time est un DateTime, extraire l'heure directement
+                if ($startTimeValue -is [DateTime]) {
+                    $startTimeValue.ToString("HH:mm")
+                }
+                # Si Start Time est une chaîne, tenter de la parser
+                elseif ($startTimeValue -is [string] -and $startTimeValue -ne '' -and $startTimeValue -notmatch '^\s*$') {
+                    [DateTime]::Parse($startTimeValue, $culture).ToString("HH:mm")
+                }
+                # Si Start Time est une valeur numérique (fraction de jour)
+                elseif ($startTimeValue -is [double]) {
+                    $excelEpoch = [DateTime]::Parse("1899-12-30")
+                    $excelEpoch.AddDays($startTimeValue).ToString("HH:mm")
+                }
+                else {
+                    "Inconnu"  # Valeur par défaut pour les cas invalides
+                }
+            } else {
+                "Inconnu"  # Valeur par défaut si Start Time est vide
+            }
+        } catch { 
+            Write-Warning "Erreur de parsing pour Start Time '$startTimeValue' : $_"
+            "Inconnu"  # Valeur par défaut en cas d'erreur
+        }
+
         $fullHomeTeam = $match."Home Team Name"
         $fullAwayTeam = $match."Away Team Name"
         
@@ -172,19 +234,19 @@ if ($matchesToday) {
 
         # Recombiner les parties dans le nouveau format : "TITANS 2 9UA"
         if ($homeTeamParts.Length -eq 3) {
-            $homeTeamBase = $homeTeamParts[0]  # Ex: "TITANS 2" (déjà correct, car il y a un espace dans le nom)
+            $homeTeamBase = $homeTeamParts[0]  # Ex: "TITANS 2"
             $homeTeamLevelAndCategory = $homeTeamParts[1] + $homeTeamParts[2]  # Ex: "9UA"
             $homeTeam = "$homeTeamBase $homeTeamLevelAndCategory"  # Ex: "TITANS 2 9UA"
         } else {
-            $homeTeam = $homeTeamParts -join " "  # Cas où il n'y a pas assez de parties
+            $homeTeam = $homeTeamParts -join " "
         }
 
         if ($awayTeamParts.Length -eq 3) {
-            $awayTeamBase = $awayTeamParts[0]  # Ex: "CARDINALS 1" (déjà correct, car il y a un espace dans le nom)
+            $awayTeamBase = $awayTeamParts[0]  # Ex: "CARDINALS 1"
             $awayTeamLevelAndCategory = $awayTeamParts[1] + $awayTeamParts[2]  # Ex: "9UA"
             $awayTeam = "$awayTeamBase $awayTeamLevelAndCategory"  # Ex: "CARDINALS 1 9UA"
         } else {
-            $awayTeam = $awayTeamParts -join " "  # Cas où il n'y a pas assez de parties
+            $awayTeam = $awayTeamParts -join " "
         }
         
         # Log des noms après traitement
@@ -224,7 +286,7 @@ if ($matchesToday) {
     $resizedImagePaths = @()
     foreach ($imageFile in $imageFiles) {
         $imagePath = $imageFile.FullName
-        $tempImagePath = Join-Path $tempFolder "resized_$([System.IO.Path]::GetFileNameWithoutExtension($imagePath)).png"  # Correction pour compatibilité
+        $tempImagePath = Join-Path $tempFolder "resized_$([System.IO.Path]::GetFileNameWithoutExtension($imagePath)).png"
         $success = Resize-Image -SourcePath $imagePath -DestinationPath $tempImagePath -TargetSize 1200 -TargetAspectRatio 1.0
         if ($success) {
             $resizedImagePaths += $tempImagePath
@@ -265,6 +327,32 @@ if ($matchesToday) {
 
             $photoBoundary = [System.Guid]::NewGuid().ToString()
             $photoContentType = "multipart/form-data; boundary=$photoBoundary"
+
+            $photoBody = [System.IO.MemoryStream]::new()
+
+            # Déterminer le Content-Type (forcer PNG)
+            $contentTypeImage = "image/png"
+
+            # Ajouter la partie "source" pour l'image
+            $photoPartHeader = "--$photoBoundary`r`n" +
+                               "Content-Disposition: form-data; name=`"source`"; filename=`"$(Split-Path $resizedImagePath -Leaf)`"`r`n" +
+                               "Content-Type: $contentTypeImage`r`n" +
+                               "`r`n"
+            $photoBody.Write([System.Text.Encoding]::UTF8.GetBytes($photoPartHeader), 0, [System.Text.Encoding]::UTF8.GetByteCount($photoPartHeader))
+
+            # Ajouter les bytes de l'image
+            $photoImageBytes = [System.IO.File]::ReadAllBytes($resizedImagePath)
+            $photoBody.Write($photoImageBytes, 0, $photoImageBytes.Length)
+
+            # Ajouter la fin du boundary
+            $photoFooter = "`r`n--$photoBoundary--`r`n"
+            $photoBody.Write([System.Text.Encoding]::UTF8.GetBytes($photoFooter), 0, [System.Text.Encoding]::UTF8.GetByteCount($photoFooter))
+
+            $photoBodyBytes = $photoBody.ToArray()
+            $photoBody.Dispose()
+
+            # Publier l'image sans la rendre publique (published=false)
+            $photoResponse = Invoke-RestMethod -Uri "$photoApiUrl`?access_token=$accessToken&published=form-data; boundary=$photoBoundary"
 
             $photoBody = [System.IO.MemoryStream]::new()
 
