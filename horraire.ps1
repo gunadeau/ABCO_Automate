@@ -1,7 +1,7 @@
 ﻿
 # Paramètres
 $scriptDir = $PSScriptRoot  # Répertoire où le script est exécuté
-$excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.xlsx"))
+$excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horrairev2.xlsx"))
 $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
 $tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
 $pageId = $env:FACEBOOK_PAGE_ID
