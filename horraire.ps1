@@ -1,7 +1,7 @@
 ﻿
 # Paramètres
 $scriptDir = $PSScriptRoot  # Répertoire où le script est exécuté
-$excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horrairev2.xlsx"))
+$excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.xlsx"))
 $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
 $tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
 $pageId = $env:FACEBOOK_PAGE_ID
@@ -273,7 +273,7 @@ if ($matchesToday) {
         }
         $feedBodyJson = $feedBody | ConvertTo-Json -Depth 3 -Compress
         Write-Output "Corps de la requête pour /feed : $feedBodyJson"
-       # $response = Invoke-RestMethod -Uri $feedApiUrl -Method Post -Body $feedBodyJson -ContentType "application/json; charset=utf-8"
+        $response = Invoke-RestMethod -Uri $feedApiUrl -Method Post -Body $feedBodyJson -ContentType "application/json; charset=utf-8"
         $postId = $response.id
         Write-Output "Publication texte réussie. Post ID : $postId"
 
@@ -312,7 +312,7 @@ if ($matchesToday) {
             $photoBody.Dispose()
 
             # Publier l'image sans la rendre publique (published=false)
-          #  $photoResponse = Invoke-RestMethod -Uri "$photoApiUrl`?access_token=$accessToken&published=false" -Method Post -Body $photoBodyBytes -ContentType $photoContentType
+            $photoResponse = Invoke-RestMethod -Uri "$photoApiUrl`?access_token=$accessToken&published=false" -Method Post -Body $photoBodyBytes -ContentType $photoContentType
             $attachedMedia += @{ "media_fbid" = $photoResponse.id }
         }
 
@@ -327,7 +327,7 @@ if ($matchesToday) {
                 access_token = $accessToken
             } | ConvertTo-Json -Depth 3
             Write-Output "Corps de la requête pour attacher les images : $updateBody"
-          #  Invoke-RestMethod -Uri $updateUrl -Method Post -Body $updateBody -ContentType "application/json; charset=utf-8" | Out-Null
+            Invoke-RestMethod -Uri $updateUrl -Method Post -Body $updateBody -ContentType "application/json; charset=utf-8" | Out-Null
             Write-Output "Images attachées avec succès à la publication."
         }
 
