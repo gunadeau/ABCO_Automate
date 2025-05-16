@@ -133,9 +133,18 @@ $matchesToday = $matches | Where-Object {
     }
 } | Sort-Object { 
     try { 
-        [DateTime]::Parse($_.("Start Time")).ToString("HH:mm") 
+        $startTime = $_.'Start Time'
+        if ($startTime -is [double]) {
+            # Convertir la fraction de jour en heure
+            $excelEpoch = [DateTime]::Parse("1899-12-30")
+            $excelEpoch.AddDays($startTime).ToString("HH:mm")
+        } else {
+            Write-Warning "Start Time '$startTime' n'est pas une fraction de jour (Type : $($startTime.GetType().FullName))"
+            "00:00"  # Valeur par défaut pour les cas inattendus
+        }
     } catch { 
-        "00:00" 
+        Write-Warning "Erreur de conversion pour Start Time '$startTime' : $_"
+        "00:00"  # Valeur par défaut en cas d'erreur
     }
 }
 
@@ -146,7 +155,20 @@ if ($matchesToday) {
     $tableContent = ""
 
     foreach ($match in $matchesToday) {
-        $startTime = [DateTime]::Parse($match."Start Time").ToString("HH:mm")  # Afficher uniquement l'heure (ex. 09:00)
+        $startTime = try { 
+            $startTimeValue = $match.'Start Time'
+            if ($startTimeValue -is [double]) {
+                # Convertir la fraction de jour en heure
+                $excelEpoch = [DateTime]::Parse("1899-12-30")
+                $excelEpoch.AddDays($startTimeValue).ToString("HH:mm")
+            } else {
+                Write-Warning "Start Time '$startTimeValue' n'est pas une fraction de jour (Type : $($startTimeValue.GetType().FullName))"
+                "Inconnu"  # Valeur par défaut pour les cas inattendus
+            }
+        } catch { 
+            Write-Warning "Erreur de conversion pour Start Time '$startTimeValue' : $_"
+            "Inconnu"  # Valeur par défaut en cas d'erreur
+        }
         $fullHomeTeam = $match."Home Team Name"
         $fullAwayTeam = $match."Away Team Name"
         
