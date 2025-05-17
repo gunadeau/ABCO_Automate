@@ -150,7 +150,7 @@ $matchesToday = $matches | Where-Object {
 
 if ($matchesToday) {
     # Construire le tableau des matchs avec un format visuel
-    $introMessage = "Venez encourager nos Titans ! Voici les matchs de la journée`n`n"
+    $introMessage = "Venez encourager nos Titans ! Voici les matchs de la journée sur nos terrains:`n`n"
     $tableHeader = "⚾ Matchs de la journée ($currentDate) ⚾`n`n"
     $tableContent = ""
 
