@@ -270,6 +270,8 @@ if ($matchesToday) {
         $feedBody = @{
             message = $messageEncoded
             access_token = $accessToken
+            published = $true
+            privacy = @{ value = "EVERYONE" } | ConvertTo-Json
         }
         $feedBodyJson = $feedBody | ConvertTo-Json -Depth 3 -Compress
         Write-Output "Corps de la requête pour /feed : $feedBodyJson"
