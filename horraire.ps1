@@ -6,8 +6,8 @@ $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "comm
 $tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
 $pageId = $env:FACEBOOK_PAGE_ID
 $accessToken = $env:FACEBOOK_ACCESS_TOKEN
-$photoApiUrl = "https://graph.facebook.com/v20.0/$pageId/photos"
-$feedApiUrl = "https://graph.facebook.com/v20.0/$pageId/feed"
+$photoApiUrl = "https://graph.facebook.com/v22.0/$pageId/photos"
+$feedApiUrl = "https://graph.facebook.com/v22.0/$pageId/feed"
 
 
 # Créer un dossier temporaire pour les images redimensionnées s'il n'existe pas
@@ -322,7 +322,7 @@ if ($matchesToday) {
 
         # Étape 3 : Mettre à jour la publication pour attacher les images
         if ($attachedMedia.Count -gt 0) {
-            $updateUrl = "https://graph.facebook.com/v20.0/$postId"
+            $updateUrl = "https://graph.facebook.com/v22.0/$postId"
             $updateBody = @{
                 attached_media = $attachedMedia
                 access_token = $accessToken
