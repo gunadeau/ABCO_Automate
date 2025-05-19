@@ -1,3 +1,4 @@
+﻿
 # Paramètres
 $scriptDir = $PSScriptRoot  # Répertoire où le script est exécuté
 $excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.xlsx"))
@@ -5,7 +6,9 @@ $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "comm
 $tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
 $pageId = $env:FACEBOOK_PAGE_ID
 $accessToken = $env:FACEBOOK_ACCESS_TOKEN
+$photoApiUrl = "https://graph.facebook.com/v20.0/$pageId/photos"
 $feedApiUrl = "https://graph.facebook.com/v20.0/$pageId/feed"
+
 
 # Créer un dossier temporaire pour les images redimensionnées s'il n'existe pas
 if (-not (Test-Path $tempFolder)) {
@@ -114,7 +117,7 @@ function Resize-Image {
 Import-Module ImportExcel
 
 # Obtenir la date du jour
-$currentDate = (Get-Date).ToString("yyyy-MM-dd")  # Format: 2025-05-19
+$currentDate = (Get-Date).ToString("yyyy-MM-dd")  # Format: 2025-05-14
 
 # Lire le fichier Excel
 $matches = Import-Excel -Path $excelFilePath
@@ -232,23 +235,6 @@ if ($matchesToday) {
     if ($imageFiles.Count -eq 0) {
         Write-Error "Aucun logo de commanditaire trouvé dans : $commanditaireFolder"
         Get-ChildItem -Path $commanditaireFolder | ForEach-Object { Write-Output "Fichier détecté : $($_.Name)" }
-        # Publier uniquement le texte si aucune image n'est disponible
-        try {
-            $messageBytes = [System.Text.Encoding]::UTF8.GetBytes($message)
-            $messageEncoded = [System.Text.Encoding]::UTF8.GetString($messageBytes)
-            $feedBody = @{
-                message = $messageEncoded
-                access_token = $accessToken
-            }
-            $feedBodyJson = $feedBody | ConvertTo-Json -Depth 3 -Compress
-            Write-Output "Corps de la requête pour /feed (texte uniquement) : $feedBodyJson"
-            $response = Invoke-RestMethod -Uri $feedApiUrl -Method Post -Body $feedBodyJson -ContentType "application/json; charset=utf-8"
-            $postId = $response.id
-            Write-Output "Publication texte réussie (sans images). Post ID : $postId"
-        }
-        catch {
-            Write-Error "Erreur lors de la publication texte : $_"
-        }
         exit
     }
 
@@ -260,7 +246,7 @@ if ($matchesToday) {
     $resizedImagePaths = @()
     foreach ($imageFile in $imageFiles) {
         $imagePath = $imageFile.FullName
-        $tempImagePath = Join-Path $tempFolder "resized_$([System.IO.Path]::GetFileNameWithoutExtension($imagePath)).png"
+        $tempImagePath = Join-Path $tempFolder "resized_$([System.IO.Path]::GetFileNameWithoutExtension($imagePath)).png"  # Correction pour compatibilité
         $success = Resize-Image -SourcePath $imagePath -DestinationPath $tempImagePath -TargetSize 1200 -TargetAspectRatio 1.0
         if ($success) {
             $resizedImagePaths += $tempImagePath
@@ -273,88 +259,79 @@ if ($matchesToday) {
     Write-Output "Nombre d'images redimensionnées avec succès : $($resizedImagePaths.Count)"
     if ($resizedImagePaths.Count -eq 0) {
         Write-Warning "Aucune image valide n'a pu être redimensionnée. La publication sera effectuée sans images."
-        try {
-            $messageBytes = [System.Text.Encoding]::UTF8.GetBytes($message)
-            $messageEncoded = [System.Text.Encoding]::UTF8.GetString($messageBytes)
-            $feedBody = @{
-                message = $messageEncoded
-                access_token = $accessToken
-            }
-            $feedBodyJson = $feedBody | ConvertTo-Json -Depth 3 -Compress
-            Write-Output "Corps de la requête pour /feed (texte uniquement) : $feedBodyJson"
-            $response = Invoke-RestMethod -Uri $feedApiUrl -Method Post -Body $feedBodyJson -ContentType "application/json; charset=utf-8"
-            $postId = $response.id
-            Write-Output "Publication texte réussie (sans images). Post ID : $postId"
-        }
-        catch {
-            Write-Error "Erreur lors de la publication texte : $_"
-        }
-        exit
     }
 
-    # Publier le message texte avec les images directement via /feed
     try {
-        $boundary = [System.Guid]::NewGuid().ToString()
-        $contentType = "multipart/form-data; boundary=$boundary"
-        $body = [System.IO.MemoryStream]::new()
-
-        # Ajouter le champ message
+        # Étape 1 : Publier uniquement le message texte via /feed
+        # Forcer l'encodage UTF-8 pour le message
         $messageBytes = [System.Text.Encoding]::UTF8.GetBytes($message)
         $messageEncoded = [System.Text.Encoding]::UTF8.GetString($messageBytes)
-        $messagePart = "--$boundary`r`n" +
-                       "Content-Disposition: form-data; name=`"message`"`r`n" +
-                       "Content-Type: text/plain; charset=UTF-8`r`n" +
-                       "`r`n" +
-                       "$messageEncoded`r`n"
-        $body.Write([System.Text.Encoding]::UTF8.GetBytes($messagePart), 0, [System.Text.Encoding]::UTF8.GetByteCount($messagePart))
 
-        # Ajouter le lien pour renforcer le type "statut"
-        $linkPart = "--$boundary`r`n" +
-                    "Content-Disposition: form-data; name=`"link`"`r`n" +
-                    "Content-Type: text/plain; charset=UTF-8`r`n" +
-                    "`r`n" +
-                    "https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings`r`n"
-        $body.Write([System.Text.Encoding]::UTF8.GetBytes($linkPart), 0, [System.Text.Encoding]::UTF8.GetByteCount($linkPart))
+        $feedBody = @{
+            message = $messageEncoded
+            access_token = $accessToken
+        }
+        $feedBodyJson = $feedBody | ConvertTo-Json -Depth 3 -Compress
+        Write-Output "Corps de la requête pour /feed : $feedBodyJson"
+        $response = Invoke-RestMethod -Uri $feedApiUrl -Method Post -Body $feedBodyJson -ContentType "application/json; charset=utf-8"
+        $postId = $response.id
+        Write-Output "Publication texte réussie. Post ID : $postId"
 
-        # Ajouter les images
-        $imageIndex = 1
+        # Étape 2 : Publier les images redimensionnées et les attacher à la publication
+        $attachedMedia = @()
         foreach ($resizedImagePath in $resizedImagePaths) {
             if (-not (Test-Path $resizedImagePath)) {
                 Write-Error "Image redimensionnée introuvable : $resizedImagePath"
                 continue
             }
 
-            $imageBytes = [System.IO.File]::ReadAllBytes($resizedImagePath)
-            $imagePart = "--$boundary`r`n" +
-                         "Content-Disposition: form-data; name=`"source$imageIndex`"; filename=`"$(Split-Path $resizedImagePath -Leaf)`"`r`n" +
-                         "Content-Type: image/png`r`n" +
-                         "`r`n"
-            $body.Write([System.Text.Encoding]::UTF8.GetBytes($imagePart), 0, [System.Text.Encoding]::UTF8.GetByteCount($imagePart))
-            $body.Write($imageBytes, 0, $imageBytes.Length)
-            $body.Write([System.Text.Encoding]::UTF8.GetBytes("`r`n"), 0, 2)
-            $imageIndex++
+            $photoBoundary = [System.Guid]::NewGuid().ToString()
+            $photoContentType = "multipart/form-data; boundary=$photoBoundary"
+
+            $photoBody = [System.IO.MemoryStream]::new()
+
+            # Déterminer le Content-Type (forcer PNG)
+            $contentTypeImage = "image/png"
+
+            # Ajouter la partie "source" pour l'image
+            $photoPartHeader = "--$photoBoundary`r`n" +
+                               "Content-Disposition: form-data; name=`"source`"; filename=`"$(Split-Path $resizedImagePath -Leaf)`"`r`n" +
+                               "Content-Type: $contentTypeImage`r`n" +
+                               "`r`n"
+            $photoBody.Write([System.Text.Encoding]::UTF8.GetBytes($photoPartHeader), 0, [System.Text.Encoding]::UTF8.GetByteCount($photoPartHeader))
+
+            # Ajouter les bytes de l'image
+            $photoImageBytes = [System.IO.File]::ReadAllBytes($resizedImagePath)
+            $photoBody.Write($photoImageBytes, 0, $photoImageBytes.Length)
+
+            # Ajouter la fin du boundary
+            $photoFooter = "`r`n--$photoBoundary--`r`n"
+            $photoBody.Write([System.Text.Encoding]::UTF8.GetBytes($photoFooter), 0, [System.Text.Encoding]::UTF8.GetByteCount($photoFooter))
+
+            $photoBodyBytes = $photoBody.ToArray()
+            $photoBody.Dispose()
+
+            # Publier l'image sans la rendre publique (published=false)
+            $photoResponse = Invoke-RestMethod -Uri "$photoApiUrl`?access_token=$accessToken&published=false" -Method Post -Body $photoBodyBytes -ContentType $photoContentType
+            $attachedMedia += @{ "media_fbid" = $photoResponse.id }
         }
 
-        # Ajouter le champ access_token
-        $accessTokenPart = "--$boundary`r`n" +
-                           "Content-Disposition: form-data; name=`"access_token`"`r`n" +
-                           "Content-Type: text/plain; charset=UTF-8`r`n" +
-                           "`r`n" +
-                           "$accessToken`r`n"
-        $body.Write([System.Text.Encoding]::UTF8.GetBytes($accessTokenPart), 0, [System.Text.Encoding]::UTF8.GetByteCount($accessTokenPart))
+        # Log du nombre d'images attachées
+        Write-Output "Nombre d'images attachées : $($attachedMedia.Count)"
 
-        # Fermer le boundary
-        $footer = "--$boundary--`r`n"
-        $body.Write([System.Text.Encoding]::UTF8.GetBytes($footer), 0, [System.Text.Encoding]::UTF8.GetByteCount($footer))
+        # Étape 3 : Mettre à jour la publication pour attacher les images
+        if ($attachedMedia.Count -gt 0) {
+            $updateUrl = "https://graph.facebook.com/v20.0/$postId"
+            $updateBody = @{
+                attached_media = $attachedMedia
+                access_token = $accessToken
+            } | ConvertTo-Json -Depth 3
+            Write-Output "Corps de la requête pour attacher les images : $updateBody"
+            Invoke-RestMethod -Uri $updateUrl -Method Post -Body $updateBody -ContentType "application/json; charset=utf-8" | Out-Null
+            Write-Output "Images attachées avec succès à la publication."
+        }
 
-        $bodyBytes = $body.ToArray()
-        $body.Dispose()
-
-        # Envoyer la requête
-        Write-Output "Envoi de la requête à : $feedApiUrl"
-        $response = Invoke-RestMethod -Uri $feedApiUrl -Method Post -Body $bodyBytes -ContentType $contentType
-        $postId = $response.id
-        Write-Output "Publication réussie avec texte et images. Post ID : $postId"
+        Write-Output "Publication réussie : $message"
     }
     catch {
         Write-Error "Erreur lors de la publication : $_"
