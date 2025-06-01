@@ -1,7 +1,7 @@
 ﻿# Paramètres Spordle
 $loginUrl = "https://myaccount.spordle.com/login?c=play&identity=0c74c85b-ba18-41f7-b170-e7b0dd3f4719&r=https%3A%2F%2Fplay.spordle.com%2Flogin%3Fu%3Dgunadeau%40hotmail.com&link=1"
 $chromeDriverPath = "C:\temp\abco\chromedriver.exe"
-$pass = "dMdQlT6gxuAF!"  # Remplacez par votre mot de passe
+$pass = $env:SPORDLE_PASS  # Remplacez par votre mot de passe
 $scheduleUrl = "https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings"
 $gamesUrl = "https://play.spordle.com/games?filter=%7B%22_include%22%3A%5B%22gameBracket%22%5D%2C%22homeTeamOffices%22%3A%5B3784%5D%2C%22seasonId%22%3A%222025-26%22%7D&order=ASC&order=ASC&order=ASC&page=1&perPage=25&sort=date&sort=startTime&sort=number"
 $testDate = Get-Date "2025-06-01"
