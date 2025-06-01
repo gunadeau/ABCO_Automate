@@ -1,1 +1,91 @@
+name: Exécuter Script PowerShell Quotidien 
 
+on:
+
+  workflow_dispatch: # Ajoute l'exécution manuelle
+
+jobs:
+  run-powershell:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Installer Chrome
+        run: |
+          # Télécharger et installer Chrome
+          $chromeUrl = "https://dl.google.com/chrome/install/chrome_installer.exe"
+          $chromeInstaller = ".\chrome_installer.exe"
+          Invoke-WebRequest -Uri $chromeUrl -OutFile $chromeInstaller
+          Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -Wait
+          Write-Host "Chrome installé"
+        shell: powershell
+
+      - name: Installer ChromeDriver
+        run: |
+          # Créer le dossier de destination à la racine
+          New-Item -Path ".\temp" -ItemType Directory -Force | Out-Null
+          
+          # Obtenir la version de Chrome installée
+          $chromePath = "${env:ProgramFiles}\Google\Chrome\Application\chrome.exe"
+          if (-not (Test-Path $chromePath)) {
+              $chromePath = "${env:ProgramFiles(x86)}\Google\Chrome\Application\chrome.exe"
+          }
+          
+          if (Test-Path $chromePath) {
+              $chromeVersion = (Get-Item $chromePath).VersionInfo.ProductVersion
+              Write-Host "Version Chrome détectée: $chromeVersion"
+              
+              # Extraire la version majeure (ex: 120.0.6099.199 -> 120)
+              $majorVersion = $chromeVersion.Split('.')[0]
+              
+              # Obtenir la version compatible de ChromeDriver
+              try {
+                  $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$majorVersion"
+                  Write-Host "Version ChromeDriver à télécharger: $chromeDriverVersion"
+              } catch {
+                  # Si la version spécifique n'existe pas, utiliser la dernière version stable
+                  $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
+                  Write-Host "Utilisation de la dernière version ChromeDriver: $chromeDriverVersion"
+              }
+              
+              # Télécharger ChromeDriver
+              $chromeDriverUrl = "https://chromedriver.storage.googleapis.com/$chromeDriverVersion/chromedriver_win32.zip"
+              $chromeDriverZip = ".\chromedriver.zip"
+              
+              Write-Host "Téléchargement de ChromeDriver depuis: $chromeDriverUrl"
+              Invoke-WebRequest -Uri $chromeDriverUrl -OutFile $chromeDriverZip
+              
+              # Extraire ChromeDriver à la racine
+              Expand-Archive -Path $chromeDriverZip -DestinationPath ".\" -Force
+              
+              # Vérifier l'installation
+              $chromeDriverExe = ".\chromedriver.exe"
+              if (Test-Path $chromeDriverExe) {
+                  Write-Host "✅ ChromeDriver installé avec succès: $chromeDriverExe"
+                  & $chromeDriverExe --version
+              } else {
+                  Write-Error "❌ Erreur: ChromeDriver non trouvé après installation"
+                  exit 1
+              }
+          } else {
+              Write-Error "❌ Chrome non trouvé après installation"
+              exit 1
+          }
+        shell: powershell
+      
+      - name: Installer les dépendances PowerShell
+        run: |
+          # Installer les modules nécessaires
+          Install-Module -Name Selenium -Force -Scope CurrentUser -ErrorAction Stop -AllowClobber
+          
+          # Vérifier les installations
+          Write-Host "Modules PowerShell installés:"
+          Get-Module -ListAvailable Selenium
+        shell: powershell
+        
+      - name: Exécuter le script PowerShell
+        env:
+          FACEBOOK_ACCESS_TOKEN: ${{ secrets.FACEBOOK_ACCESS_TOKEN }}
+          FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+        run: |
+          ./horraire.ps1
+        shell: powershell
