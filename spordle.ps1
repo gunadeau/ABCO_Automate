@@ -13,7 +13,6 @@ $accessToken = $env:FACEBOOK_ACCESS_TOKEN
 $photoApiUrl = "https://graph.facebook.com/v22.0/$pageId/photos"
 $feedApiUrl = "https://graph.facebook.com/v22.0/$pageId/feed"
 
-
 # Charger le module Selenium
 Import-Module Selenium
 
@@ -51,7 +50,7 @@ function Resize-Image {
         }
 
         $originalAspectRatio = $originalWidth / $originalHeight
-        Write-Output "Image $SourcePath : Largeur=$originalWidth, Hauteur=$originalHeight, Ratio=$originalAspectRatio"
+        Write-Host "Image $SourcePath : Largeur=$originalWidth, Hauteur=$originalHeight, Ratio=$originalAspectRatio"
 
         if ($originalWidth -lt $TargetSize -or $originalHeight -lt $TargetSize) {
             Write-Warning "L'image originale $SourcePath est plus petite que la taille cible ($TargetSize x $TargetSize). Cela peut entraîner une perte de qualité (upscaling)."
@@ -67,7 +66,7 @@ function Resize-Image {
 
         $newWidth = [math]::Max(1, $newWidth)
         $newHeight = [math]::Max(1, $newHeight)
-        Write-Output "Nouvelles dimensions pour $SourcePath : Largeur=$newWidth, Hauteur=$newHeight"
+        Write-Host "Nouvelles dimensions pour $SourcePath : Largeur=$newWidth, Hauteur=$newHeight"
 
         $tempImage = New-Object System.Drawing.Bitmap $newWidth, $newHeight
         $graphics = [System.Drawing.Graphics]::FromImage($tempImage)
@@ -91,7 +90,7 @@ function Resize-Image {
         $finalImage.Save($DestinationPath, [System.Drawing.Imaging.ImageFormat]::Png)
 
         $fileInfo = Get-Item $DestinationPath
-        Write-Output "Image redimensionnée sauvegardée : $DestinationPath (Taille : $($fileInfo.Length / 1KB) KB)"
+        Write-Host "Image redimensionnée sauvegardée : $DestinationPath (Taille : $($fileInfo.Length / 1KB) KB)"
 
         $finalGraphics.Dispose()
         $finalImage.Dispose()
@@ -107,13 +106,7 @@ function Resize-Image {
     }
 }
 
-# Fonction pour extraire les matchs de Spordle
-# Fonction corrigée pour extraire les matchs de Spordle
-# Fonction COMPLÈTEMENT RÉÉCRITE pour extraire les matchs de Spordle
-# Version ULTRA-SÉCURISÉE de Get-SpordleMatches
-# Version BULLETPROOF de Get-SpordleMatches - Utilise une variable de contrôle
 # Version BULLETPROOF de Get-SpordleMatches avec paramètre de date pour tests
-
 function Get-SpordleMatches {
     param(
         $driver,
@@ -326,17 +319,27 @@ function Get-SpordleMatches {
                                     $matchInfo.HomeTeam = $teams[0]
                                 }
                                 
-                                # Simplifier les noms d'équipes
+                                # Simplifier les noms d'équipes pour un format plus compact
                                 if (-not [string]::IsNullOrEmpty($matchInfo.HomeTeam)) {
-                                    if ($matchInfo.HomeTeam -match '(TITANS\s+\d+).*?(\d+U)') {
-                                        $matchInfo.HomeTeam = "$($matches[1]) $($matches[2])"
+                                    # Pattern pour extraire : "TOROS 3 - 9U - B - Masculin - LOTBINIÈRE" -> "TOROS 3 9UB"
+                                    if ($matchInfo.HomeTeam -match '^([A-Z]+\s+\d+).*?(\d+U).*?([AB])') {
+                                        $teamName = $matches[1]      # "TOROS 3"
+                                        $ageGroup = $matches[2]      # "9U"
+                                        $division = $matches[3]      # "B"
+                                        $matchInfo.HomeTeam = "$teamName $ageGroup$division"  # "TOROS 3 9UB"
                                     }
+                                    Write-Host "DEBUG: HomeTeam simplifié : '$($matchInfo.HomeTeam)'"
                                 }
                                 
                                 if (-not [string]::IsNullOrEmpty($matchInfo.AwayTeam)) {
-                                    if ($matchInfo.AwayTeam -match '(TITANS\s+\d+).*?(\d+U)') {
-                                        $matchInfo.AwayTeam = "$($matches[1]) $($matches[2])"
+                                    # Même logique pour l'équipe visiteur
+                                    if ($matchInfo.AwayTeam -match '^([A-Z]+\s+\d+).*?(\d+U).*?([AB])') {
+                                        $teamName = $matches[1]      # "TITANS 5"
+                                        $ageGroup = $matches[2]      # "9U"
+                                        $division = $matches[3]      # "B"
+                                        $matchInfo.AwayTeam = "$teamName $ageGroup$division"  # "TITANS 5 9UB"
                                     }
+                                    Write-Host "DEBUG: AwayTeam simplifié : '$($matchInfo.AwayTeam)'"
                                 }
                                 
                                 # Ajouter le match s'il a une heure valide
@@ -450,13 +453,13 @@ try {
             Write-Output "=== CONSTRUCTION DU MESSAGE FACEBOOK ==="
             
             # Construire le message Facebook
-            $currentDate = (Get-Date).ToString("yyyy-MM-dd")
+            $currentDate = $TestDate.ToString("yyyy-MM-dd")  # Utiliser la date de test
             $introMessage = "Venez encourager nos Titans ! Voici les matchs de la journée sur nos terrains:`n`n"
             $tableHeader = "⚾ Matchs de la journée ($currentDate) ⚾`n`n"
             $tableContent = ""
 
             foreach ($match in $matchesToday) {
-                # Traitement des noms d'équipes (comme dans le script original)
+                # Traitement des noms d'équipes (déjà simplifiés par la fonction)
                 $homeTeam = $match.HomeTeam
                 $awayTeam = $match.AwayTeam
                 $time = $match.Time
@@ -465,10 +468,14 @@ try {
                 $tableContent += "⏰ $time  $homeTeam  vs  $awayTeam  🏟️ $venue`n"
             }
 
-            $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://play.spordle.com/games ***"
+            $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings ***"
             $message = $introMessage + $tableHeader + $tableContent + "`n$automatedMessage`n`nMerci à nos commanditaires !"
 
             Write-Output "=== PUBLICATION FACEBOOK ==="
+            Write-Output "Message qui sera publié :"
+            Write-Output "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            Write-Output $message
+            Write-Output "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             
             # Récupérer les logos des commanditaires
             $imageFiles = Get-ChildItem -Path $commanditaireFolder -File | Where-Object { $_.Extension -in ".jpg", ".jpeg", ".png" }
@@ -567,16 +574,16 @@ try {
             Write-Output ""
             Write-Output "❌ AUCUNE PUBLICATION FACEBOOK EFFECTUÉE"
             Write-Output "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            Write-Output "ℹ️ Aucun match trouvé pour aujourd'hui ($((Get-Date).ToString('dddd, MMMM d, yyyy')))"
+            Write-Output "ℹ️ Aucun match trouvé pour la date testée ($($TestDate.ToString('dddd, MMMM d, yyyy')))"
             Write-Output ""
             Write-Output "🔍 Raisons possibles :"
-            Write-Output "   • Aucun match programmé aujourd'hui"
+            Write-Output "   • Aucun match programmé pour cette date"
             Write-Output "   • La date dans Spordle ne correspond pas au format attendu" 
             Write-Output "   • Problème de connexion ou de chargement de la page"
             Write-Output "   • Structure de la page Spordle modifiée"
             Write-Output ""
             Write-Output "📋 Actions recommandées :"
-            Write-Output "   • Vérifier manuellement s'il y a des matchs sur Spordle aujourd'hui"
+            Write-Output "   • Vérifier manuellement s'il y a des matchs sur Spordle pour cette date"
             Write-Output "   • Consulter le fichier de debug généré : spordle_games_debug.html"
             Write-Output "   • Réessayer plus tard si c'est un problème temporaire"
             Write-Output "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
