@@ -11,7 +11,7 @@ $scriptDir = "C:\Users\gunadeau\Downloads\abco"
 $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
 $tempFolder = "C:\Users\gunadeau\Downloads\abco\temp"
 $pageId = $env:FACEBOOK_PAGE_ID
-$accessToken = "EAAXEZCEZB0tY0BO0uKuudjSXZCqM94R5Ij5SlZAkFfSnv5ydilmttyFtLHdjhG7cjZAM0ZBGyYPp3sJiP5ZBAj0WINMAA0m58ptVd3XwZBqMh1EAt2PRjoKYAz2DdkS8DTkiYyuEZCt8IX9o6SGwigVShmLIUjQeJUz8fQT8lIAGijGZAj3ryFEVhMOvCDLL65bLWTQ72GKTGMng5ZAYmt2GyPxrkWlrP30"
+$accessToken = $env:FACEBOOK_ACCESS_TOKEN
 $photoApiUrl = "https://graph.facebook.com/v22.0/$pageId/photos"
 $feedApiUrl = "https://graph.facebook.com/v22.0/$pageId/feed"
 
