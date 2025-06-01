@@ -431,7 +431,7 @@ try {
         # Récupérer les matchs du jour
         Write-Output "=== RÉCUPÉRATION DES MATCHS ==="
         try {
-            $matchesToday = Get-SpordleMatches -driver $driver -TestDate $testDate
+            $matchesToday = Get-SpordleMatches -driver $driver #-TestDate $testDate
             
             # VÉRIFICATION CRUCIALE : Valider que la fonction a fonctionné correctement
             if ($matchesToday -eq $null) {
