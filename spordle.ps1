@@ -5,7 +5,7 @@ $gamesUrl = "https://play.spordle.com/games?filter=%7B%22_include%22%3A%5B%22gam
 $testDate = Get-Date "2025-06-01"
 
 # Paramètres Facebook
-$scriptDir = "C:\Users\gunadeau\Downloads\abco"
+$scriptDir = $PSScriptRoot
 $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
 $tempFolder = "C:\Users\gunadeau\Downloads\abco\temp"
 $pageId = $env:FACEBOOK_PAGE_ID
