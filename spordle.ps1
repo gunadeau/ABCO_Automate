@@ -470,7 +470,7 @@ try {
                 $tableContent += "⏰ $time  $homeTeam  vs  $awayTeam  🏟️ $venue`n"
             }
 
-            $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://play.spordle.com/games ***"
+            $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings ***"
             $message = $introMessage + $tableHeader + $tableContent + "`n$automatedMessage`n`nMerci à nos commanditaires !"
 
             Write-Output "=== PUBLICATION FACEBOOK ==="
