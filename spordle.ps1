@@ -8,7 +8,7 @@ $testDate = Get-Date "2025-06-01"
 
 # Paramètres Facebook
 $scriptDir = "C:\Users\gunadeau\Downloads\abco"
-$commanditaireFolder = "C:\Users\gunadeau\Downloads\abco\commanditaire"
+$commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
 $tempFolder = "C:\Users\gunadeau\Downloads\abco\temp"
 $pageId = "677527292106749"
 $accessToken = "EAAXEZCEZB0tY0BO0uKuudjSXZCqM94R5Ij5SlZAkFfSnv5ydilmttyFtLHdjhG7cjZAM0ZBGyYPp3sJiP5ZBAj0WINMAA0m58ptVd3XwZBqMh1EAt2PRjoKYAz2DdkS8DTkiYyuEZCt8IX9o6SGwigVShmLIUjQeJUz8fQT8lIAGijGZAj3ryFEVhMOvCDLL65bLWTQ72GKTGMng5ZAYmt2GyPxrkWlrP30"
