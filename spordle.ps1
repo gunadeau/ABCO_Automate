@@ -7,7 +7,7 @@ $testDate = Get-Date "2025-06-01"
 # Paramètres Facebook
 $scriptDir = $PSScriptRoot
 $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
-$tempFolder = "C:\Users\gunadeau\Downloads\abco\temp"
+$tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
 $pageId = $env:FACEBOOK_PAGE_ID
 $accessToken = $env:FACEBOOK_ACCESS_TOKEN
 $photoApiUrl = "https://graph.facebook.com/v22.0/$pageId/photos"
