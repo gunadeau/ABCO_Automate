@@ -2,7 +2,7 @@
 $loginUrl = "https://myaccount.spordle.com/login?c=play&identity=0c74c85b-ba18-41f7-b170-e7b0dd3f4719&r=https%3A%2F%2Fplay.spordle.com%2Flogin%3Fu%3Dgunadeau%40hotmail.com&link=1"
 $pass = $env:SPORDLE_PASS  # Remplacez par votre mot de passe
 $gamesUrl = "https://play.spordle.com/games?filter=%7B%22_include%22%3A%5B%22gameBracket%22%5D%2C%22homeTeamOffices%22%3A%5B3784%5D%2C%22seasonId%22%3A%222025-26%22%7D&order=ASC&order=ASC&order=ASC&page=1&perPage=25&sort=date&sort=startTime&sort=number"
-#$testDate = Get-Date "2025-06-01"
+#$testDate = Get-Date #"2025-06-01"
 
 # Paramètres Facebook
 $scriptDir = $PSScriptRoot
@@ -431,7 +431,7 @@ try {
         # Récupérer les matchs du jour
         Write-Output "=== RÉCUPÉRATION DES MATCHS ==="
         try {
-            $matchesToday = Get-SpordleMatches -driver $driver #-TestDate $testDate
+            $matchesToday = Get-SpordleMatches -driver $driver -TestDate $testDate
             
             # VÉRIFICATION CRUCIALE : Valider que la fonction a fonctionné correctement
             if ($matchesToday -eq $null) {
