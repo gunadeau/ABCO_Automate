@@ -321,23 +321,25 @@ function Get-SpordleMatches {
                                 
                                 # Simplifier les noms d'équipes pour un format plus compact
                                 if (-not [string]::IsNullOrEmpty($matchInfo.HomeTeam)) {
-                                    # Pattern pour extraire : "TOROS 3 - 9U - B - Masculin - LOTBINIÈRE" -> "TOROS 3 9UB"
-                                    if ($matchInfo.HomeTeam -match '^([A-Z]+\s+\d+).*?(\d+U).*?([AB])') {
-                                        $teamName = $matches[1]      # "TOROS 3"
-                                        $ageGroup = $matches[2]      # "9U"
-                                        $division = $matches[3]      # "B"
-                                        $matchInfo.HomeTeam = "$teamName $ageGroup$division"  # "TOROS 3 9UB"
+                                    # Pattern pour différents formats :
+                                    # "TOROS 3 - 9U - B - Masculin - LOTBINIÈRE" -> "TOROS 3 9UB"
+                                    # "JAYS - 13U - A - MASCULIN - SUD DE LA BEAUCE" -> "JAYS 13UA"
+                                    if ($matchInfo.HomeTeam -match '^([A-Z]+(?:\s+\d+)?).*?(\d+U).*?([AB])') {
+                                        $teamName = $matches[1].Trim()  # "TOROS 3" ou "JAYS"
+                                        $ageGroup = $matches[2]         # "9U" ou "13U"
+                                        $division = $matches[3]         # "B" ou "A"
+                                        $matchInfo.HomeTeam = "$teamName $ageGroup$division"  # "TOROS 3 9UB" ou "JAYS 13UA"
                                     }
                                     Write-Host "DEBUG: HomeTeam simplifié : '$($matchInfo.HomeTeam)'"
                                 }
                                 
                                 if (-not [string]::IsNullOrEmpty($matchInfo.AwayTeam)) {
                                     # Même logique pour l'équipe visiteur
-                                    if ($matchInfo.AwayTeam -match '^([A-Z]+\s+\d+).*?(\d+U).*?([AB])') {
-                                        $teamName = $matches[1]      # "TITANS 5"
-                                        $ageGroup = $matches[2]      # "9U"
-                                        $division = $matches[3]      # "B"
-                                        $matchInfo.AwayTeam = "$teamName $ageGroup$division"  # "TITANS 5 9UB"
+                                    if ($matchInfo.AwayTeam -match '^([A-Z]+(?:\s+\d+)?).*?(\d+U).*?([AB])') {
+                                        $teamName = $matches[1].Trim()  # "TITANS 5" ou "JAYS"
+                                        $ageGroup = $matches[2]         # "9U" ou "13U"
+                                        $division = $matches[3]         # "B" ou "A"
+                                        $matchInfo.AwayTeam = "$teamName $ageGroup$division"  # "TITANS 5 9UB" ou "JAYS 13UA"
                                     }
                                     Write-Host "DEBUG: AwayTeam simplifié : '$($matchInfo.AwayTeam)'"
                                 }
@@ -468,7 +470,7 @@ try {
                 $tableContent += "⏰ $time  $homeTeam  vs  $awayTeam  🏟️ $venue`n"
             }
 
-            $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings ***"
+            $automatedMessage = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://play.spordle.com/games ***"
             $message = $introMessage + $tableHeader + $tableContent + "`n$automatedMessage`n`nMerci à nos commanditaires !"
 
             Write-Output "=== PUBLICATION FACEBOOK ==="
