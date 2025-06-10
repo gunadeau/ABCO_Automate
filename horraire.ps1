@@ -1,4 +1,4 @@
-﻿
+﻿# Remplacer par spordle.ps1
 # Paramètres
 $scriptDir = $PSScriptRoot  # Répertoire où le script est exécuté
 $excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.xlsx"))
