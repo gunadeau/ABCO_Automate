@@ -453,6 +453,7 @@ try {
     
     # Créer le driver avec le service et les options
     $driver = New-Object OpenQA.Selenium.Chrome.ChromeDriver($chromeService, $chromeOptions)
+    $driver.ExecuteScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     Write-Output "Navigateur Chrome démarré avec ChromeDriver 137 et options anti-détection."
 } catch {
     Write-Error "Erreur lors du démarrage de Chrome : $_"
