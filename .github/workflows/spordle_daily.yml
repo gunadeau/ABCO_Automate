@@ -15,7 +15,7 @@ jobs:
           $chromeUrl = "https://dl.google.com/chrome/install/chrome_installer.exe"
           $chromeInstaller = ".\chrome_installer.exe"
           Invoke-WebRequest -Uri $chromeUrl -OutFile $chromeInstaller
-          Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -Wait
+          #Start-Process -FilePath $chromeInstaller -ArgumentList "/silent", "/install" -Wait
           Write-Host "Chrome installé"
         shell: powershell
 
