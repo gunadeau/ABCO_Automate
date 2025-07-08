@@ -417,7 +417,7 @@ try {
     $chromeOptions.AddAdditionalCapability("useAutomationExtension", $false)
     
     # Spécifier le chemin vers votre ChromeDriver 137
-    $chromeDriverPath = ".\chromedriver.exe"  # Remplacez par votre chemin
+    $chromeDriverPath = ".\"  # Remplacez par votre chemin
     
     # Créer le service avec le bon chemin
     $chromeService = [OpenQA.Selenium.Chrome.ChromeDriverService]::CreateDefaultService($chromeDriverPath)
