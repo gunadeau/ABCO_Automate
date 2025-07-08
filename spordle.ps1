@@ -400,7 +400,10 @@ function Get-SpordleMatches {
 
 # Démarrer le navigateur Chrome via Selenium
 try {
-    $driver = Start-SeChrome 
+    # Définir les arguments Chrome via variable d'environnement
+    $env:CHROME_OPTIONS = "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36 --disable-blink-features=AutomationControlled --no-sandbox --disable-dev-shm-usage --disable-extensions --disable-plugins --disable-images --window-size=1920,1080"
+    
+    $driver = Start-SeChrome
     Write-Output "Navigateur Chrome démarré."
 } catch {
     Write-Error "Erreur lors du démarrage de Chrome : $_"
