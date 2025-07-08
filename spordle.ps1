@@ -436,7 +436,10 @@ try {
     Write-Output "=== CONNEXION À SPORDLE ==="
     $driver.Navigate().GoToUrl($loginUrl)
     Write-Output "Page de connexion chargée : $loginUrl"
-    Start-Sleep -Seconds 3
+    Start-Sleep -Seconds 15
+    Write-Host "URL actuelle : $($driver.Url)"
+    Write-Host "Titre : $($driver.Title)"
+    
 
     # Saisir le username
     $usernameField = $driver.FindElementByName("username")
