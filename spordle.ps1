@@ -414,7 +414,31 @@ try {
     $driver.Navigate().GoToUrl($loginUrl)
     Write-Output "Page de connexion chargée : $loginUrl"
     Start-Sleep -Seconds 3
-
+    # Après avoir navigué vers la page de connexion
+    Write-Host "=== DÉBOGAGE PAGE DE CONNEXION ==="
+    Write-Host "URL actuelle : $($driver.Url)"
+    Write-Host "Titre : $($driver.Title)"
+    
+    # Prendre une capture d'écran
+    $driver.GetScreenshot().SaveAsFile("login_page_debug.png")
+    
+    # Lister tous les éléments input
+    $inputs = $driver.FindElementsByTagName("input")
+    Write-Host "Nombre d'inputs trouvés : $($inputs.Count)"
+    foreach ($input in $inputs) {
+        $name = $input.GetAttribute('name')
+        $type = $input.GetAttribute('type')
+        $id = $input.GetAttribute('id')
+        Write-Host "Input - Name: '$name', Type: '$type', ID: '$id'"
+    }
+    
+    # Vérifier le contenu de la page
+    $pageSource = $driver.PageSource
+    if ($pageSource -like "*password*") {
+        Write-Host "Le mot 'password' est présent dans le source HTML"
+    } else {
+        Write-Host "Le mot 'password' n'est PAS présent dans le source HTML"
+    }
     # Saisir le mot de passe et soumettre
     Write-Output "Entrer le mot de passe"
     $passwordField = $driver.FindElementById("password")
