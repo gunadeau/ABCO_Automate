@@ -416,9 +416,15 @@ try {
     $chromeOptions.AddExcludedArgument("enable-automation")
     $chromeOptions.AddAdditionalCapability("useAutomationExtension", $false)
     
-    # Utiliser ChromeDriver directement au lieu de Start-SeChrome
-    $driver = New-Object OpenQA.Selenium.Chrome.ChromeDriver($chromeOptions)
-    Write-Output "Navigateur Chrome démarré avec options anti-détection."
+    # Spécifier le chemin vers votre ChromeDriver 137
+    $chromeDriverPath = "C:\chemin\vers\votre\chromedriver.exe"  # Remplacez par votre chemin
+    
+    # Créer le service avec le bon chemin
+    $chromeService = [OpenQA.Selenium.Chrome.ChromeDriverService]::CreateDefaultService($chromeDriverPath)
+    
+    # Créer le driver avec le service et les options
+    $driver = New-Object OpenQA.Selenium.Chrome.ChromeDriver($chromeService, $chromeOptions)
+    Write-Output "Navigateur Chrome démarré avec ChromeDriver 137 et options anti-détection."
 } catch {
     Write-Error "Erreur lors du démarrage de Chrome : $_"
     exit
