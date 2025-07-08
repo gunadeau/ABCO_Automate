@@ -404,18 +404,46 @@ try {
     # Créer les options Chrome
     $chromeOptions = New-Object OpenQA.Selenium.Chrome.ChromeOptions
     $chromeOptions.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
-    $chromeOptions.AddArgument("--accept-language=fr-FR,fr;q=0.9,en;q=0.8")
     $chromeOptions.AddArgument("--disable-blink-features=AutomationControlled")
     $chromeOptions.AddArgument("--disable-dev-shm-usage")
     $chromeOptions.AddArgument("--no-sandbox")
+    $chromeOptions.AddArgument("--disable-web-security")
+    $chromeOptions.AddArgument("--disable-features=VizDisplayCompositor")
     $chromeOptions.AddArgument("--disable-extensions")
     $chromeOptions.AddArgument("--disable-plugins")
-    $chromeOptions.AddArgument("--disable-images")
+    $chromeOptions.AddArgument("--disable-gpu")
+    $chromeOptions.AddArgument("--no-first-run")
+    $chromeOptions.AddArgument("--no-default-browser-check")
+    $chromeOptions.AddArgument("--disable-default-apps")
+    $chromeOptions.AddArgument("--disable-popup-blocking")
+    $chromeOptions.AddArgument("--disable-translate")
+    $chromeOptions.AddArgument("--disable-background-timer-throttling")
+    $chromeOptions.AddArgument("--disable-renderer-backgrounding")
+    $chromeOptions.AddArgument("--disable-backgrounding-occluded-windows")
+    $chromeOptions.AddArgument("--disable-client-side-phishing-detection")
+    $chromeOptions.AddArgument("--disable-sync")
+    $chromeOptions.AddArgument("--disable-ipc-flooding-protection")
     $chromeOptions.AddArgument("--window-size=1920,1080")
+    
+    # Headers supplémentaires pour simuler un navigateur réel
+    $chromeOptions.AddArgument("--accept-language=fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7")
+    
+    # Préférences pour masquer l'automation
+    $prefs = @{
+        "profile.default_content_setting_values.notifications" = 2
+        "profile.default_content_settings.popups" = 0
+        "profile.managed_default_content_settings.images" = 2
+        "profile.password_manager_enabled" = $false
+        "credentials_enable_service" = $false
+    }
+    $chromeOptions.AddUserProfilePreference("profile.default_content_setting_values.notifications", 2)
+    $chromeOptions.AddUserProfilePreference("profile.default_content_settings.popups", 0)
+    $chromeOptions.AddUserProfilePreference("profile.managed_default_content_settings.images", 2)
     
     # Masquer les indicateurs d'automation
     $chromeOptions.AddExcludedArgument("enable-automation")
     $chromeOptions.AddAdditionalCapability("useAutomationExtension", $false)
+    $chromeOptions.AddArgument("--disable-blink-features=AutomationControlled")
     
     # Spécifier le chemin vers votre ChromeDriver 137
     $chromeDriverPath = ".\"  # Remplacez par votre chemin
