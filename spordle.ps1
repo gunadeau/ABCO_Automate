@@ -401,8 +401,25 @@ function Get-SpordleMatches {
 # Démarrer le navigateur Chrome via Selenium
 
 try {
-    $driver = Start-SeChrome 
-    Write-Output "Navigateur Chrome démarré."
+    # Créer les options Chrome
+    $chromeOptions = New-Object OpenQA.Selenium.Chrome.ChromeOptions
+    $chromeOptions.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
+    $chromeOptions.AddArgument("--accept-language=fr-FR,fr;q=0.9,en;q=0.8")
+    $chromeOptions.AddArgument("--disable-blink-features=AutomationControlled")
+    $chromeOptions.AddArgument("--disable-dev-shm-usage")
+    $chromeOptions.AddArgument("--no-sandbox")
+    $chromeOptions.AddArgument("--disable-extensions")
+    $chromeOptions.AddArgument("--disable-plugins")
+    $chromeOptions.AddArgument("--disable-images")
+    $chromeOptions.AddArgument("--window-size=1920,1080")
+    
+    # Masquer les indicateurs d'automation
+    $chromeOptions.AddExcludedArgument("enable-automation")
+    $chromeOptions.AddAdditionalCapability("useAutomationExtension", $false)
+    
+    # Utiliser ChromeDriver directement au lieu de Start-SeChrome
+    $driver = New-Object OpenQA.Selenium.Chrome.ChromeDriver($chromeOptions)
+    Write-Output "Navigateur Chrome démarré avec options anti-détection."
 } catch {
     Write-Error "Erreur lors du démarrage de Chrome : $_"
     exit
@@ -419,15 +436,7 @@ try {
     Write-Host "URL actuelle : $($driver.Url)"
     Write-Host "Titre : $($driver.Title)"
     
-    # Prendre une capture d'écran
-    $screenshotDir = "screenshots"
-    if (-not (Test-Path $screenshotDir)) {
-        New-Item -ItemType Directory -Path $screenshotDir
-    }
-    
-    # Prendre les screenshots dans ce dossier
-    $driver.GetScreenshot().SaveAsFile("$screenshotDir/login_page_debug.png")
-    $driver.GetScreenshot().SaveAsFile("$screenshotDir/error_screenshot.png")
+
     
     # Lister tous les éléments input
     $inputs = $driver.FindElementsByTagName("input")
