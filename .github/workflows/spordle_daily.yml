@@ -98,3 +98,11 @@ jobs:
         run: |
           ./spordle.ps1
         shell: powershell
+        
+      - name: Upload screenshots
+        if: always()  # Toujours uploader
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-screenshots
+          path: screenshots/
+          retention-days: 5
