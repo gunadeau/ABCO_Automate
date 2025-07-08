@@ -50,12 +50,31 @@ jobs:
               # Télécharger ChromeDriver
               $chromeDriverUrl = "https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/win32/chromedriver-win32.zip"
               $chromeDriverZip = ".\chromedriver.zip"
+              $tempExtractPath = ".\temp_chromedriver"
+              
+
+
               
               Write-Host "Téléchargement de ChromeDriver depuis: $chromeDriverUrl"
               Invoke-WebRequest -Uri $chromeDriverUrl -OutFile $chromeDriverZip
               
               # Extraire ChromeDriver à la racine
-              Expand-Archive -Path $chromeDriverZip -DestinationPath ".\" -Force
+              
+              Expand-Archive -Path $chromeDriverZip -DestinationPath $tempExtractPath -Force
+
+              # Déplacer chromedriver.exe à la racine
+              $exePath = Get-ChildItem -Path $tempExtractPath -Recurse -Filter "chromedriver.exe" | Select-Object -First 1
+              if ($exePath) {
+                  Move-Item -Path $exePath.FullName -Destination ".\chromedriver.exe" -Force
+                  Write-Host "chromedriver.exe déplacé à la racine."
+              } else {
+                  Write-Host "chromedriver.exe introuvable dans l'archive."
+              }
+              
+              # Nettoyer
+              Remove-Item -Path $tempExtractPath -Recurse -Force
+              Remove-Item -Path 
+
               
               # Vérifier l'installation
               $chromeDriverExe = ".\chromedriver.exe"
