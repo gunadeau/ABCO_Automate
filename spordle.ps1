@@ -416,7 +416,7 @@ try {
     Start-Sleep -Seconds 3
 
     # Saisir le mot de passe et soumettre
-    $passwordField = $driver.FindElementByName("Password")
+    $passwordField = $driver.FindElementById("password")
     $passwordField.SendKeys($pass)
     Write-Output "Mot de passe saisi."
     
