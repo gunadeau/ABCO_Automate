@@ -399,27 +399,9 @@ function Get-SpordleMatches {
 }
 
 # Démarrer le navigateur Chrome via Selenium
-
 try {
-    # Créer les options Chrome
-    $chromeOptions = New-Object OpenQA.Selenium.Chrome.ChromeOptions
-    $chromeOptions.AddArgument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
-    $chromeOptions.AddArgument("--accept-language=fr-FR,fr;q=0.9,en;q=0.8")
-    $chromeOptions.AddArgument("--disable-blink-features=AutomationControlled")
-    $chromeOptions.AddArgument("--disable-dev-shm-usage")
-    $chromeOptions.AddArgument("--no-sandbox")
-    $chromeOptions.AddArgument("--disable-extensions")
-    $chromeOptions.AddArgument("--disable-plugins")
-    $chromeOptions.AddArgument("--disable-images")
-    $chromeOptions.AddArgument("--window-size=1920,1080")
-    
-    # Masquer les indicateurs d'automation
-    $chromeOptions.AddExcludedArgument("enable-automation")
-    $chromeOptions.AddAdditionalCapability("useAutomationExtension", $false)
-    
-    # Utiliser ChromeDriver directement au lieu de Start-SeChrome
-    $driver = New-Object OpenQA.Selenium.Chrome.ChromeDriver($chromeOptions)
-    Write-Output "Navigateur Chrome démarré avec options anti-détection."
+    $driver = Start-SeChrome 
+    Write-Output "Navigateur Chrome démarré."
 } catch {
     Write-Error "Erreur lors du démarrage de Chrome : $_"
     exit
@@ -431,37 +413,12 @@ try {
     $driver.Navigate().GoToUrl($loginUrl)
     Write-Output "Page de connexion chargée : $loginUrl"
     Start-Sleep -Seconds 3
-    # Après avoir navigué vers la page de connexion
-    Write-Host "=== DÉBOGAGE PAGE DE CONNEXION ==="
-    Write-Host "URL actuelle : $($driver.Url)"
-    Write-Host "Titre : $($driver.Title)"
-    
 
-    
-    # Lister tous les éléments input
-    $inputs = $driver.FindElementsByTagName("input")
-    Write-Host "Nombre d'inputs trouvés : $($inputs.Count)"
-    foreach ($input in $inputs) {
-        $name = $input.GetAttribute('name')
-        $type = $input.GetAttribute('type')
-        $id = $input.GetAttribute('id')
-        Write-Host "Input - Name: '$name', Type: '$type', ID: '$id'"
-    }
-    
-    # Vérifier le contenu de la page
-    $pageSource = $driver.PageSource
-    if ($pageSource -like "*password*") {
-        Write-Host "Le mot 'password' est présent dans le source HTML"
-    } else {
-        Write-Host "Le mot 'password' n'est PAS présent dans le source HTML"
-    }
     # Saisir le mot de passe et soumettre
-    Write-Output "Entrer le mot de passe"
-    $passwordField = $driver.FindElementById("password")
+    $passwordField = $driver.FindElementByName("password")
     $passwordField.SendKeys($pass)
     Write-Output "Mot de passe saisi."
-
-    Write-Output "Peser sur Enter"
+    
     $passwordField.SendKeys([OpenQA.Selenium.Keys]::Enter)
     Write-Output "Connexion envoyée."
     Start-Sleep -Seconds 5
