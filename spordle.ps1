@@ -399,8 +399,7 @@ function Get-SpordleMatches {
 }
 
 # Démarrer le navigateur Chrome via Selenium
-$chromeDriverDir = (Resolve-Path ".\").Path
-$env:PATH = "$chromeDriverDir;$env:PATH"
+
 try {
     $driver = Start-SeChrome 
     Write-Output "Navigateur Chrome démarré."
