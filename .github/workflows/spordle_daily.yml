@@ -38,17 +38,17 @@ jobs:
               $majorVersion = $chromeVersion.Split('.')[0]
               
               # Obtenir la version compatible de ChromeDriver
-              try {
-                  $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$majorVersion"
-                  Write-Host "Version ChromeDriver à télécharger: $chromeDriverVersion"
-              } catch {
+             # try {
+              #    $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$majorVersion"
+              #    Write-Host "Version ChromeDriver à télécharger: $chromeDriverVersion"
+              #} catch {
                   # Si la version spécifique n'existe pas, utiliser la dernière version stable
-                  $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
-                  Write-Host "Utilisation de la dernière version ChromeDriver: $chromeDriverVersion"
-              }
+              #    $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
+               #   Write-Host "Utilisation de la dernière version ChromeDriver: $chromeDriverVersion"
+              #}
               
               # Télécharger ChromeDriver
-              $chromeDriverUrl = "https://chromedriver.storage.googleapis.com/$chromeDriverVersion/chromedriver_win32.zip"
+              $chromeDriverUrl = "https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/win32/chromedriver-win32.zip"
               $chromeDriverZip = ".\chromedriver.zip"
               
               Write-Host "Téléchargement de ChromeDriver depuis: $chromeDriverUrl"
