@@ -420,7 +420,14 @@ try {
     Write-Host "Titre : $($driver.Title)"
     
     # Prendre une capture d'écran
-    $driver.GetScreenshot().SaveAsFile("login_page_debug.png")
+    $screenshotDir = "screenshots"
+    if (-not (Test-Path $screenshotDir)) {
+        New-Item -ItemType Directory -Path $screenshotDir
+    }
+    
+    # Prendre les screenshots dans ce dossier
+    $driver.GetScreenshot().SaveAsFile("$screenshotDir/login_page_debug.png")
+    $driver.GetScreenshot().SaveAsFile("$screenshotDir/error_screenshot.png")
     
     # Lister tous les éléments input
     $inputs = $driver.FindElementsByTagName("input")
