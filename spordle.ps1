@@ -413,7 +413,7 @@ try {
     Write-Output "=== CONNEXION À SPORDLE ==="
     $driver.Navigate().GoToUrl($loginUrl)
     Write-Output "Page de connexion chargée : $loginUrl"
-    Start-Sleep -Seconds 3
+    Start-Sleep -Seconds 10
 
     # Saisir le mot de passe et soumettre
     $passwordField = $driver.FindElementByName("password")
