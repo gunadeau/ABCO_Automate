@@ -38,25 +38,32 @@ jobs:
               $majorVersion = $chromeVersion.Split('.')[0]
               
               # Obtenir la version compatible de ChromeDriver
-              try {
-                  $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$majorVersion"
-                  Write-Host "Version ChromeDriver à télécharger: $chromeDriverVersion"
-              } catch {
-                  # Si la version spécifique n'existe pas, utiliser la dernière version stable
-                  $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
-                  Write-Host "Utilisation de la dernière version ChromeDriver: $chromeDriverVersion"
-              }
+              #try {
+              #    $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$majorVersion"
+              #    Write-Host "Version ChromeDriver à télécharger: $chromeDriverVersion"
+              #} catch {
+              #    # Si la version spécifique n'existe pas, utiliser la dernière version stable
+              #    $chromeDriverVersion = Invoke-RestMethod -Uri "https://chromedriver.storage.googleapis.com/LATEST_RELEASE"
+              #    Write-Host "Utilisation de la dernière version ChromeDriver: $chromeDriverVersion"
+              #}
               
               # Télécharger ChromeDriver
-              $chromeDriverUrl = "https://chromedriver.storage.googleapis.com/$chromeDriverVersion/chromedriver_win32.zip"
+              $chromeDriverUrl = "https://storage.googleapis.com/chrome-for-testing-public/138.0.7204.92/win32/chromedriver-win32.zip"
               $chromeDriverZip = ".\chromedriver.zip"
-              
+              $tempExtractPath = ".\temp_chromedriver"
               Write-Host "Téléchargement de ChromeDriver depuis: $chromeDriverUrl"
               Invoke-WebRequest -Uri $chromeDriverUrl -OutFile $chromeDriverZip
               
               # Extraire ChromeDriver à la racine
-              Expand-Archive -Path $chromeDriverZip -DestinationPath ".\" -Force
-              
+              Expand-Archive -Path $chromeDriverZip -DestinationPath $tempExtractPath -Force
+
+              $exePath = Get-ChildItem -Path $tempExtractPath -Recurse -Filter "chromedriver.exe" | Select-Object -First 1
+              if ($exePath) {
+                  Move-Item -Path $exePath.FullName -Destination ".\chromedriver.exe" -Force
+                  Write-Host "chromedriver.exe déplacé à la racine."
+              } else {
+                  Write-Host "chromedriver.exe introuvable dans l'archive."
+              }    
               # Vérifier l'installation
               $chromeDriverExe = ".\chromedriver.exe"
               if (Test-Path $chromeDriverExe) {
