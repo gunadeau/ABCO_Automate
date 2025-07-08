@@ -1,5 +1,6 @@
 ﻿# Paramètres Spordle
-$loginUrl = "https://myaccount.spordle.com/login?c=play&identity=0c74c85b-ba18-41f7-b170-e7b0dd3f4719&r=https%3A%2F%2Fplay.spordle.com%2Flogin%3Fu%3Dgunadeau%40hotmail.com&link=1"
+$loginname = "gunadeau@hotmail.com"
+$loginUrl = "https://play.spordle.com/login"
 $pass = $env:SPORDLE_PASS  # Remplacez par votre mot de passe
 $gamesUrl = "https://play.spordle.com/games?filter=%7B%22_include%22%3A%5B%22gameBracket%22%5D%2C%22homeTeamOffices%22%3A%5B3784%5D%2C%22seasonId%22%3A%222025-26%22%7D&order=ASC&order=ASC&order=ASC&page=1&perPage=25&sort=date&sort=startTime&sort=number"
 $testDate = Get-Date  # "2025-06-07"
@@ -436,6 +437,15 @@ try {
     $driver.Navigate().GoToUrl($loginUrl)
     Write-Output "Page de connexion chargée : $loginUrl"
     Start-Sleep -Seconds 3
+
+    # Saisir le username
+    $usernameField = $driver.FindElementByName("username")
+    $usernameField.SendKeys($loginname)
+    Write-Output "Login name saisi."
+
+    $usernameField.SendKeys([OpenQA.Selenium.Keys]::Enter)
+    Write-Output "Connexion envoyée."
+    Start-Sleep -Seconds 5
 
     # Saisir le mot de passe et soumettre
     $passwordField = $driver.FindElementByName("password")
