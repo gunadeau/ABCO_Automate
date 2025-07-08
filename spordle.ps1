@@ -416,10 +416,12 @@ try {
     Start-Sleep -Seconds 3
 
     # Saisir le mot de passe et soumettre
+    Write-Output "Entrer le mot de passe"
     $passwordField = $driver.FindElementById("password")
     $passwordField.SendKeys($pass)
     Write-Output "Mot de passe saisi."
-    
+
+    Write-Output "Peser sur Enter"
     $passwordField.SendKeys([OpenQA.Selenium.Keys]::Enter)
     Write-Output "Connexion envoyée."
     Start-Sleep -Seconds 5
