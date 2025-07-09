@@ -39,15 +39,7 @@ jobs:
         mkdir -p temp
         # Le dossier commanditaire existe déjà dans le repo avec les images
         
-    - name: Configure date for testing (if manual trigger)
-      if: github.event_name == 'workflow_dispatch'
-      run: |
-        echo "DATE_OFFSET=${{ github.event.inputs.test_date_offset }}" >> $GITHUB_ENV
-        
-    - name: Configure date for scheduled run
-      if: github.event_name == 'schedule'
-      run: |
-        echo "DATE_OFFSET=0" >> $GITHUB_ENV
+
         
     - name: Run Spordle Facebook script
       env:
