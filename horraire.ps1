@@ -4,8 +4,8 @@ $scriptDir = $PSScriptRoot  # Répertoire où le script est exécuté
 $excelFilePath = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "horraire.xlsx"))
 $commanditaireFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "commanditaire"))
 $tempFolder = [System.IO.Path]::GetFullPath((Join-Path $scriptDir "temp"))
-$pageId = $env:FACEBOOK_PAGE_ID
-$accessToken = $env:FACEBOOK_ACCESS_TOKEN
+$pageId = $env:FACEBOOK_TEST_PAGE_ID
+$accessToken = $env:FACEBOOK_TEST_ACCESS_TOKEN
 $photoApiUrl = "https://graph.facebook.com/v22.0/$pageId/photos"
 $feedApiUrl = "https://graph.facebook.com/v22.0/$pageId/feed"
 
