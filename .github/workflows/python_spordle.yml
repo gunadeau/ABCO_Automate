@@ -3,16 +3,7 @@ name: Spordle Facebook Publisher
 on:
   # Exécution manuelle
   workflow_dispatch:
-    inputs:
-      test_date_offset:
-        description: 'Nombre de jours à partir d\'aujourd\'hui (0=aujourd\'hui, 1=demain, etc.)'
-        required: false
-        default: '0'
-        type: string
-      
-  # Exécution automatique tous les jours à 7h00 EST
-  schedule:
-    - cron: '0 12 * * *'  # 12:00 UTC = 7:00 EST (8:00 EDT en été)
+
 
 jobs:
   publish-spordle-matches:
