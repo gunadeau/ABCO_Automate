@@ -1,0 +1,5 @@
+selenium>=4.15.0
+undetected-chromedriver>=3.5.4
+Pillow>=10.0.0
+requests>=2.31.0
+setuptools>=68.0.0
