@@ -61,7 +61,7 @@ class SpordleConfig:
     """Configuration pour Spordle"""
     def __init__(self):
         self.login_url = "https://myaccount.spordle.com/login?c=play&identity=0c74c85b-ba18-41f7-b170-e7b0dd3f4719&r=https%3A%2F%2Fplay.spordle.com%2Flogin%3Fu%3Dgunadeau%40hotmail.com&link=1"
-        self.password = "dMdQlT6gxuAF!"
+        self.password = os.getenv('SPORDLE_PASS')
         self.games_url = "https://play.spordle.com/games?filter=%7B%22_include%22%3A%5B%22gameBracket%22%5D%2C%22homeTeamOffices%22%3A%5B3784%5D%2C%22seasonId%22%3A%222025-26%22%7D&order=ASC&order=ASC&order=ASC&page=1&perPage=25&sort=date&sort=startTime&sort=number"
         
         if not self.password:
@@ -70,8 +70,8 @@ class SpordleConfig:
 class FacebookConfig:
     """Configuration pour Facebook"""
     def __init__(self):
-        self.page_id = "677527292106749"
-        self.access_token = "EAAXEZCEZB0tY0BPKqeHr7o3P6lqRMK5iRViQJhClVLotkZCaIFXSgNHkq1k61JjhvhAVhI2xbs0pyAZAvtXxEeVgPNGsQHYaZC8YioE7nT09gZCAd3tS1Lsr3CtSuu6vQmwCcZBoyZCU7t8anQZCJxX8Wl8rqJ2xajfB8tZAhtugzHjc89yqMkoa6D5cTVndZBua5oFjgaAAVzR1g2gUEBZAFYECRrtwrZBPF6wozQzIMNjiGCh3XywWh8ucW1WYZD"
+        self.page_id = os.getenv('FACEBOOK_PAGE_ID')
+        self.access_token = os.getenv('FACEBOOK_ACCESS_TOKEN')
         self.photo_api_url = f"https://graph.facebook.com/v22.0/{self.page_id}/photos"
         self.feed_api_url = f"https://graph.facebook.com/v22.0/{self.page_id}/feed"
         
