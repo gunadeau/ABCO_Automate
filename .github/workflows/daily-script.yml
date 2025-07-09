@@ -15,8 +15,8 @@ jobs:
         shell: powershell
       - name: Exécuter le script PowerShell
         env:
-          FACEBOOK_ACCESS_TOKEN: ${{ secrets.FACEBOOK_ACCESS_TOKEN }}
-          FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+          FACEBOOK_ACCESS_TOKEN: ${{ secrets.FACEBOOK_TEST_ACCESS_TOKEN }}
+          FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_TEST_PAGE_ID }}
         run: |
           ./horraire.ps1
         shell: powershell
