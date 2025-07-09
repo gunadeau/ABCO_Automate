@@ -1,4 +1,4 @@
-name: Spordle Facebook Publisher
+name: Spordle Facebook Publisher Python
 
 on:
   # Exécution manuelle
@@ -63,20 +63,4 @@ jobs:
         # Exécuter le script
         python spordle_facebook.py
         
-    - name: Upload debug files on failure
-      if: failure()
-      uses: actions/upload-artifact@v3
-      with:
-        name: debug-files
-        path: |
-          temp/spordle_games_debug.html
-          spordle_facebook.log
-        retention-days: 7
-        
-    - name: Upload logs on success
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: success-logs
-        path: spordle_facebook.log
-        retention-days: 3
+
