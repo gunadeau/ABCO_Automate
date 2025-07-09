@@ -552,7 +552,7 @@ class FacebookPublisher:
             temp_folder.mkdir(exist_ok=True)
             
             # Récupérer les images des commanditaires
-            sponsor_folder = Path("commanditaire")
+            sponsor_folder = Path("Commanditaire")
             if not sponsor_folder.exists():
                 logger.warning("Dossier 'commanditaire' non trouvé")
                 return
