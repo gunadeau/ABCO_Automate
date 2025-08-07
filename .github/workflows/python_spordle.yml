@@ -46,22 +46,28 @@ jobs:
         rm -rf ~/.local/share/undetected_chromedriver/ || true
         
         # Forcer undetected_chromedriver à télécharger la bonne version
-        python3 -c "
-            import undetected_chromedriver as uc
-            import os
-            import shutil
-            
-            # Nettoyer le cache
-            cache_dir = os.path.expanduser('~/.local/share/undetected_chromedriver')
-            if os.path.exists(cache_dir):
-                shutil.rmtree(cache_dir)
-            
-            # Forcer le téléchargement de la bonne version
-            print('Téléchargement du ChromeDriver pour la version $CHROME_MAJOR_VERSION...')
-            driver = uc.Chrome(version_main=$CHROME_MAJOR_VERSION, headless=True)
-            driver.quit()
-            print('ChromeDriver téléchargé et testé avec succès')
-            "
+        cat > sync_chromedriver.py << 'EOF'
+import undetected_chromedriver as uc
+import os
+import shutil
+import sys
+
+# Récupérer la version majeure depuis les arguments
+chrome_major_version = int(sys.argv[1])
+
+# Nettoyer le cache
+cache_dir = os.path.expanduser('~/.local/share/undetected_chromedriver')
+if os.path.exists(cache_dir):
+    shutil.rmtree(cache_dir)
+
+# Forcer le téléchargement de la bonne version
+print(f'Téléchargement du ChromeDriver pour la version {chrome_major_version}...')
+driver = uc.Chrome(version_main=chrome_major_version, headless=True)
+driver.quit()
+print('ChromeDriver téléchargé et testé avec succès')
+EOF
+        
+        python3 sync_chromedriver.py $CHROME_MAJOR_VERSION
         
     - name: Verify versions after sync
       run: |
@@ -69,12 +75,14 @@ jobs:
         echo "Chrome version:"
         google-chrome --version
         echo "Test du ChromeDriver avec Python:"
-        python3 -c "
-            import undetected_chromedriver as uc
-            driver = uc.Chrome(version_main=None, headless=True)
-            print('ChromeDriver fonctionne correctement')
-            driver.quit()
-            "
+        cat > test_chromedriver.py << 'EOF'
+import undetected_chromedriver as uc
+driver = uc.Chrome(version_main=None, headless=True)
+print('ChromeDriver fonctionne correctement')
+driver.quit()
+EOF
+        
+        python3 test_chromedriver.py
         
     - name: Create temp directory
       run: |
