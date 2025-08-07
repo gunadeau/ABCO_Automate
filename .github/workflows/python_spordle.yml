@@ -1,13 +1,12 @@
 name: Spordle Facebook Publisher Python
 
 on:
-  # Exécution manuelle
   workflow_dispatch:
-
 
 jobs:
   publish-spordle-matches:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     
     steps:
     - name: Checkout repository
@@ -17,6 +16,7 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.11'
+        cache: 'pip'
         
     - name: Install dependencies
       run: |
@@ -32,14 +32,53 @@ jobs:
         sudo apt-get install -y google-chrome-stable
         
         # Installer les dépendances pour les images
-        sudo apt-get install -y libjpeg-dev zlib1g-dev
+        sudo apt-get install -y libjpeg-dev zlib1g-dev xvfb
+        
+    - name: Force ChromeDriver version sync
+      run: |
+        # Obtenir la version exacte de Chrome installée
+        CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
+        CHROME_MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d. -f1)
+        echo "Chrome version détectée: $CHROME_VERSION"
+        echo "Version majeure: $CHROME_MAJOR_VERSION"
+        
+        # Nettoyer les anciens ChromeDrivers d'undetected_chromedriver
+        rm -rf ~/.local/share/undetected_chromedriver/ || true
+        
+        # Forcer undetected_chromedriver à télécharger la bonne version
+        python3 -c "
+import undetected_chromedriver as uc
+import os
+import shutil
+
+# Nettoyer le cache
+cache_dir = os.path.expanduser('~/.local/share/undetected_chromedriver')
+if os.path.exists(cache_dir):
+    shutil.rmtree(cache_dir)
+
+# Forcer le téléchargement de la bonne version
+print('Téléchargement du ChromeDriver pour la version ${CHROME_MAJOR_VERSION}...')
+driver = uc.Chrome(version_main=${CHROME_MAJOR_VERSION}, headless=True)
+driver.quit()
+print('ChromeDriver téléchargé et testé avec succès')
+        "
+        
+    - name: Verify versions after sync
+      run: |
+        echo "=== Versions après synchronisation ==="
+        echo "Chrome version:"
+        google-chrome --version
+        echo "Test du ChromeDriver avec Python:"
+        python3 -c "
+import undetected_chromedriver as uc
+driver = uc.Chrome(version_main=None, headless=True)
+print(f'ChromeDriver fonctionne correctement')
+driver.quit()
+        "
         
     - name: Create temp directory
       run: |
         mkdir -p temp
-        # Le dossier commanditaire existe déjà dans le repo avec les images
-        
-
         
     - name: Run Spordle Facebook script
       env:
@@ -49,10 +88,14 @@ jobs:
         DISPLAY: :99
       run: |
         # Démarrer un serveur X virtuel pour Chrome
-        sudo Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-        sleep 3
+        xvfb-run -a --server-args="-screen 0 1920x1080x24" python spordle_facebook.py
         
-        # Exécuter le script
-        python spordle_facebook.py
-        
-
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: error-logs
+        path: |
+          temp/
+          *.log
+        retention-days: 7
