@@ -47,21 +47,21 @@ jobs:
         
         # Forcer undetected_chromedriver à télécharger la bonne version
         python3 -c "
-import undetected_chromedriver as uc
-import os
-import shutil
-
-# Nettoyer le cache
-cache_dir = os.path.expanduser('~/.local/share/undetected_chromedriver')
-if os.path.exists(cache_dir):
-    shutil.rmtree(cache_dir)
-
-# Forcer le téléchargement de la bonne version
-print('Téléchargement du ChromeDriver pour la version $CHROME_MAJOR_VERSION...')
-driver = uc.Chrome(version_main=$CHROME_MAJOR_VERSION, headless=True)
-driver.quit()
-print('ChromeDriver téléchargé et testé avec succès')
-"
+            import undetected_chromedriver as uc
+            import os
+            import shutil
+            
+            # Nettoyer le cache
+            cache_dir = os.path.expanduser('~/.local/share/undetected_chromedriver')
+            if os.path.exists(cache_dir):
+                shutil.rmtree(cache_dir)
+            
+            # Forcer le téléchargement de la bonne version
+            print('Téléchargement du ChromeDriver pour la version $CHROME_MAJOR_VERSION...')
+            driver = uc.Chrome(version_main=$CHROME_MAJOR_VERSION, headless=True)
+            driver.quit()
+            print('ChromeDriver téléchargé et testé avec succès')
+            "
         
     - name: Verify versions after sync
       run: |
