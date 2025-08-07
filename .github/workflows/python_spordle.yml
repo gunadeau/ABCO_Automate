@@ -34,55 +34,10 @@ jobs:
         # Installer les dépendances pour les images
         sudo apt-get install -y libjpeg-dev zlib1g-dev xvfb
         
-    - name: Force ChromeDriver version sync
+    - name: Synchronize ChromeDriver
       run: |
-        # Obtenir la version exacte de Chrome installée
-        CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
-        CHROME_MAJOR_VERSION=$(echo $CHROME_VERSION | cut -d. -f1)
-        echo "Chrome version détectée: $CHROME_VERSION"
-        echo "Version majeure: $CHROME_MAJOR_VERSION"
-        
-        # Nettoyer les anciens ChromeDrivers d'undetected_chromedriver
-        rm -rf ~/.local/share/undetected_chromedriver/ || true
-        
-        # Forcer undetected_chromedriver à télécharger la bonne version
-        cat > sync_chromedriver.py << 'EOF'
-import undetected_chromedriver as uc
-import os
-import shutil
-import sys
-
-# Récupérer la version majeure depuis les arguments
-chrome_major_version = int(sys.argv[1])
-
-# Nettoyer le cache
-cache_dir = os.path.expanduser('~/.local/share/undetected_chromedriver')
-if os.path.exists(cache_dir):
-    shutil.rmtree(cache_dir)
-
-# Forcer le téléchargement de la bonne version
-print(f'Téléchargement du ChromeDriver pour la version {chrome_major_version}...')
-driver = uc.Chrome(version_main=chrome_major_version, headless=True)
-driver.quit()
-print('ChromeDriver téléchargé et testé avec succès')
-EOF
-        
-        python3 sync_chromedriver.py $CHROME_MAJOR_VERSION
-        
-    - name: Verify versions after sync
-      run: |
-        echo "=== Versions après synchronisation ==="
-        echo "Chrome version:"
-        google-chrome --version
-        echo "Test du ChromeDriver avec Python:"
-        cat > test_chromedriver.py << 'EOF'
-import undetected_chromedriver as uc
-driver = uc.Chrome(version_main=None, headless=True)
-print('ChromeDriver fonctionne correctement')
-driver.quit()
-EOF
-        
-        python3 test_chromedriver.py
+        echo "=== Synchronisation ChromeDriver ==="
+        python3 sync_chromedriver.py
         
     - name: Create temp directory
       run: |
