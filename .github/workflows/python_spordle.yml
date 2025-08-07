@@ -57,8 +57,8 @@ if os.path.exists(cache_dir):
     shutil.rmtree(cache_dir)
 
 # Forcer le téléchargement de la bonne version
-print('Téléchargement du ChromeDriver pour la version ${CHROME_MAJOR_VERSION}...')
-driver = uc.Chrome(version_main=${CHROME_MAJOR_VERSION}, headless=True)
+print('Téléchargement du ChromeDriver pour la version $CHROME_MAJOR_VERSION...')
+driver = uc.Chrome(version_main=$CHROME_MAJOR_VERSION, headless=True)
 driver.quit()
 print('ChromeDriver téléchargé et testé avec succès')
 "
