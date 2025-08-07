@@ -34,6 +34,22 @@ jobs:
         # Installer les dépendances pour les images
         sudo apt-get install -y libjpeg-dev zlib1g-dev xvfb
         
+    - name: Diagnostic Chrome installations
+      run: |
+        echo "=== Diagnostic des installations Chrome ==="
+        echo "Recherche de tous les binaires Chrome:"
+        find /usr /opt -name "*chrome*" -type f 2>/dev/null | head -10
+        echo ""
+        echo "Versions trouvées:"
+        for chrome in /usr/bin/google-chrome /usr/bin/google-chrome-stable /opt/google/chrome/chrome; do
+          if [ -f "$chrome" ]; then
+            echo "$chrome: $($chrome --version 2>/dev/null || echo 'erreur')"
+          fi
+        done
+        echo ""
+        echo "Processus Chrome en cours:"
+        ps aux | grep chrome | head -5
+        
     - name: Synchronize ChromeDriver
       run: |
         echo "=== Synchronisation ChromeDriver ==="
