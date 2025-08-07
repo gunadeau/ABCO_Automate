@@ -61,7 +61,7 @@ print('Téléchargement du ChromeDriver pour la version ${CHROME_MAJOR_VERSION}.
 driver = uc.Chrome(version_main=${CHROME_MAJOR_VERSION}, headless=True)
 driver.quit()
 print('ChromeDriver téléchargé et testé avec succès')
-        "
+"
         
     - name: Verify versions after sync
       run: |
@@ -72,9 +72,9 @@ print('ChromeDriver téléchargé et testé avec succès')
         python3 -c "
 import undetected_chromedriver as uc
 driver = uc.Chrome(version_main=None, headless=True)
-print(f'ChromeDriver fonctionne correctement')
+print('ChromeDriver fonctionne correctement')
 driver.quit()
-        "
+"
         
     - name: Create temp directory
       run: |
