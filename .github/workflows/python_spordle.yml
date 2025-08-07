@@ -70,11 +70,11 @@ jobs:
         google-chrome --version
         echo "Test du ChromeDriver avec Python:"
         python3 -c "
-import undetected_chromedriver as uc
-driver = uc.Chrome(version_main=None, headless=True)
-print('ChromeDriver fonctionne correctement')
-driver.quit()
-"
+            import undetected_chromedriver as uc
+            driver = uc.Chrome(version_main=None, headless=True)
+            print('ChromeDriver fonctionne correctement')
+            driver.quit()
+            "
         
     - name: Create temp directory
       run: |
