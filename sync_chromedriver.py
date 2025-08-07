@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script pour synchroniser automatiquement ChromeDriver avec la version de Chrome installée
+Script pour forcer la synchronisation ChromeDriver avec la version exacte de Chrome
 """
 
 import subprocess
@@ -30,37 +30,77 @@ def get_chrome_version():
         logging.error(f"Erreur lors de la détection de Chrome: {e}")
         raise
 
-def clear_chromedriver_cache():
-    """Nettoie le cache d'undetected_chromedriver"""
-    cache_dir = os.path.expanduser('~/.local/share/undetected_chromedriver')
-    if os.path.exists(cache_dir):
-        logging.info("Nettoyage du cache ChromeDriver...")
-        shutil.rmtree(cache_dir)
-        logging.info("Cache nettoyé")
-    else:
-        logging.info("Aucun cache ChromeDriver trouvé")
+def force_chrome_binary_path():
+    """Force l'utilisation du bon binaire Chrome"""
+    chrome_paths = [
+        '/usr/bin/google-chrome',
+        '/usr/bin/google-chrome-stable',
+        '/opt/google/chrome/chrome'
+    ]
+    
+    for path in chrome_paths:
+        if os.path.exists(path):
+            logging.info(f"Chrome binaire trouvé: {path}")
+            # Vérifier la version de ce binaire
+            try:
+                result = subprocess.run([path, '--version'], 
+                                      capture_output=True, text=True, check=True)
+                logging.info(f"Version de {path}: {result.stdout.strip()}")
+                return path
+            except Exception as e:
+                logging.warning(f"Erreur avec {path}: {e}")
+                continue
+    
+    return None
 
-def sync_chromedriver():
-    """Synchronise ChromeDriver avec la version de Chrome installée"""
+def clear_all_chrome_caches():
+    """Nettoie tous les caches liés à Chrome et ChromeDriver"""
+    cache_dirs = [
+        os.path.expanduser('~/.local/share/undetected_chromedriver'),
+        os.path.expanduser('~/.cache/selenium'),
+        '/tmp/chrome_*',
+    ]
+    
+    for cache_dir in cache_dirs:
+        if '*' in cache_dir:
+            # Utiliser shell pour les wildcards
+            subprocess.run(f'rm -rf {cache_dir}', shell=True)
+        elif os.path.exists(cache_dir):
+            logging.info(f"Nettoyage du cache: {cache_dir}")
+            shutil.rmtree(cache_dir)
+
+def sync_chromedriver_with_force():
+    """Synchronise ChromeDriver en forçant l'utilisation du bon Chrome"""
     try:
-        # Importer undetected_chromedriver
         import undetected_chromedriver as uc
         
         # Détecter la version de Chrome
         major_version, full_version = get_chrome_version()
         
-        # Nettoyer le cache pour forcer le téléchargement
-        clear_chromedriver_cache()
+        # Trouver le bon binaire Chrome
+        chrome_binary = force_chrome_binary_path()
+        if not chrome_binary:
+            raise Exception("Aucun binaire Chrome valide trouvé")
         
-        # Options Chrome pour le test
+        # Nettoyer tous les caches
+        clear_all_chrome_caches()
+        
+        # Options Chrome
         chrome_options = uc.ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-plugins")
         
-        # Forcer le téléchargement du ChromeDriver correspondant
-        logging.info(f"Téléchargement du ChromeDriver pour Chrome version {major_version}...")
+        # FORCER l'utilisation du bon binaire Chrome
+        chrome_options.binary_location = chrome_binary
+        
+        logging.info(f"Forçage Chrome binaire: {chrome_binary}")
+        logging.info(f"Téléchargement ChromeDriver pour version {major_version}...")
+        
+        # Créer le driver avec le binaire forcé
         driver = uc.Chrome(
             options=chrome_options,
             version_main=major_version,
@@ -70,7 +110,7 @@ def sync_chromedriver():
         # Test rapide
         logging.info("Test du ChromeDriver...")
         driver.get("about:blank")
-        logging.info("✅ ChromeDriver téléchargé et testé avec succès")
+        logging.info("✅ ChromeDriver synchronisé avec succès")
         
         driver.quit()
         return True
@@ -79,19 +119,22 @@ def sync_chromedriver():
         logging.error(f"Erreur lors de la synchronisation: {e}")
         return False
 
-def test_chromedriver():
-    """Test final du ChromeDriver"""
+def test_final():
+    """Test final avec configuration identique"""
     try:
         import undetected_chromedriver as uc
+        
+        chrome_binary = force_chrome_binary_path()
         
         chrome_options = uc.ChromeOptions()
         chrome_options.add_argument("--headless")
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
+        chrome_options.binary_location = chrome_binary
         
         driver = uc.Chrome(options=chrome_options, version_main=None)
         driver.get("about:blank")
-        logging.info("✅ Test final réussi - ChromeDriver prêt à l'emploi")
+        logging.info("✅ Test final réussi")
         driver.quit()
         return True
         
@@ -100,17 +143,15 @@ def test_chromedriver():
         return False
 
 if __name__ == "__main__":
-    logging.info("=== Synchronisation ChromeDriver ===")
+    logging.info("=== Synchronisation ChromeDriver FORCÉE ===")
     
-    # Synchroniser ChromeDriver
-    if sync_chromedriver():
-        # Test final
-        if test_chromedriver():
-            logging.info("🎉 Synchronisation terminée avec succès")
+    if sync_chromedriver_with_force():
+        if test_final():
+            logging.info("🎉 Synchronisation forcée réussie")
             sys.exit(0)
         else:
             logging.error("❌ Échec du test final")
             sys.exit(1)
     else:
-        logging.error("❌ Échec de la synchronisation")
+        logging.error("❌ Échec de la synchronisation forcée")
         sys.exit(1)
