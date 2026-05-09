@@ -38,7 +38,7 @@ if sys.platform.startswith('win'):
 # ============ CONFIGURATION DATE DE TEST ============
 # Changez cette valeur pour tester différentes dates :
 # 0 = aujourd'hui, 1 = demain, 2 = après-demain, etc.
-JOURS_OFFSET = 0  # TESTEZ DEMAIN
+JOURS_OFFSET = 7  # TESTEZ DEMAIN
 
 # Ou décommentez pour une date spécifique :
 # DATE_SPECIFIQUE = datetime(2025, 7, 12)  # Format: (année, mois, jour)
