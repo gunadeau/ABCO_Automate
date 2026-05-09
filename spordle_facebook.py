@@ -151,6 +151,7 @@ class SpordleScheduleExtractor:
             options.add_argument('--disable-dev-shm-usage')
             
             # Configuration pour GitHub Actions (environnement CI)
+            major_version = None
             if os.getenv('GITHUB_ACTIONS'):
                 options.add_argument('--headless=new')
                 options.add_argument('--disable-gpu')
@@ -159,8 +160,23 @@ class SpordleScheduleExtractor:
                 options.add_argument('--disable-extensions')
                 options.add_argument('--window-size=1920,1080')
                 logger.info("Mode GitHub Actions détecté - Chrome en mode headless")
+                
+                # Détecter la version de Chrome
+                try:
+                    import subprocess
+                    result = subprocess.run(['google-chrome', '--version'], capture_output=True, text=True)
+                    match = re.search(r'(\d+)\.', result.stdout)
+                    if match:
+                        major_version = int(match.group(1))
+                        logger.info(f"Version majeure de Chrome détectée : {major_version}")
+                except Exception as e:
+                    logger.warning(f"Impossible de détecter la version de Chrome: {e}")
             
-            self.driver = uc.Chrome(options=options)
+            if major_version:
+                self.driver = uc.Chrome(options=options, version_main=major_version)
+            else:
+                self.driver = uc.Chrome(options=options)
+            
             logger.info("Driver Chrome démarré avec succès")
             return True
         except Exception as e:
