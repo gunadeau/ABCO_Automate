@@ -153,6 +153,11 @@ class SpordleScheduleExtractor:
             # Configuration pour GitHub Actions (environnement CI)
             major_version = None
             if os.getenv('GITHUB_ACTIONS'):
+                # Forcer l'utilisation du bon binaire Chrome pour éviter que le système n'utilise Chromium ou une ancienne version
+                chrome_bin = '/usr/bin/google-chrome'
+                if os.path.exists(chrome_bin):
+                    options.binary_location = chrome_bin
+                    
                 options.add_argument('--headless=new')
                 options.add_argument('--disable-gpu')
                 options.add_argument('--disable-web-security')
@@ -164,7 +169,7 @@ class SpordleScheduleExtractor:
                 # Détecter la version de Chrome
                 try:
                     import subprocess
-                    result = subprocess.run(['google-chrome', '--version'], capture_output=True, text=True)
+                    result = subprocess.run([chrome_bin, '--version'], capture_output=True, text=True)
                     match = re.search(r'(\d+)\.', result.stdout)
                     if match:
                         major_version = int(match.group(1))
