@@ -652,12 +652,20 @@ def main():
         spordle_config = SpordleConfig()
         facebook_config = FacebookConfig()
         
-        # Configuration de la date via variable d'environnement (pour GitHub Actions)
-        date_offset = int(os.getenv('DATE_OFFSET', '0'))
-        test_date = datetime.now() + timedelta(days=date_offset)
-        
-        if date_offset != 0:
-            logger.info(f"Mode test: Date décalée de {date_offset} jour(s) - {test_date.strftime('%Y-%m-%d')}")
+        # Configuration de la date (priorité : DATE_SPECIFIQUE > JOURS_OFFSET > env var)
+        if DATE_SPECIFIQUE is not None:
+            test_date = DATE_SPECIFIQUE
+            logger.info(f"Mode test: Date spécifique configurée - {test_date.strftime('%Y-%m-%d')}")
+        else:
+            if JOURS_OFFSET != 0:
+                date_offset = JOURS_OFFSET
+            else:
+                date_offset = int(os.getenv('DATE_OFFSET', '0'))
+                
+            test_date = datetime.now() + timedelta(days=date_offset)
+            
+            if date_offset != 0:
+                logger.info(f"Mode test: Date décalée de {date_offset} jour(s) - {test_date.strftime('%Y-%m-%d')}")
         
         # Extraction des matchs
         extractor = SpordleScheduleExtractor(spordle_config)
