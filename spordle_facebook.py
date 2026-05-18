@@ -561,7 +561,7 @@ class FacebookPublisher:
             venue = re.sub(r" - Baseball.*$", "", match.venue)
             table_content += f"⏰ {match.time}  {match.home_team}  vs  {match.away_team}  🏟️ {venue}\n"
         
-        automated_message = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://page.spordle.com/fr/ligue-de-baseball-mineur-de-la-region-de-quebec/schedule-stats-standings ***"
+        automated_message = "*** Ceci est un message automatisé, toujours valider l'horaire sur: https://page.spordle.com/fr/association-baseball-chaudiere-ouest/schedule-stats-standings ***"
         
         return f"{intro_message}{table_header}{table_content}\n{automated_message}\n\nMerci à nos commanditaires !"
     
