@@ -125,6 +125,7 @@ def test_final():
         import undetected_chromedriver as uc
         
         chrome_binary = force_chrome_binary_path()
+        major_version, _ = get_chrome_version()
         
         chrome_options = uc.ChromeOptions()
         chrome_options.add_argument("--headless")
@@ -132,7 +133,7 @@ def test_final():
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.binary_location = chrome_binary
         
-        driver = uc.Chrome(options=chrome_options, version_main=None)
+        driver = uc.Chrome(options=chrome_options, version_main=major_version)
         driver.get("about:blank")
         logging.info("✅ Test final réussi")
         driver.quit()
